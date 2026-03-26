@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+    <meta name="generator" content="HTML Tidy for HTML5 for Linux version 5.8.0" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <meta name="author" content="Student Name (student@iastate.edu)" />
+    <title>HW2</title>
+    <style>
+    <![CDATA[
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    ]]>
+    </style>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <header id="title-block-header">
+        <h1 class="title">HW2</h1>
+        <p class="subtitle">COMS 5750: Computational Perception</p>
+        <p class="author">Md Solaiman Hosen (hosen@iastate.edu)</p>
+    </header>
+    <p>This homework must be submitted as a zip file containing all code files and images. The HTML file may need to be modified to include all code and image files.</p>
+    <p>Supporting material can be found on <a href="https://www.ece.iastate.edu/~alexs/classes/2026_Spring_5750/">the class webpage</a>. You may learn more about braille <a href="https://en.wikipedia.org/wiki/Braille">here</a>.</p>
+    <p>All braille characters were generated using <a href="https://www.brailletranslator.org/">this translator</a>.</p>
+    <p>All problems after question 1 may be solved in any language (Python, Java, C++, MATLAB, etc.) as long as you are utilizing the OpenCV library or MATLAB.</p>
+    <h1 id="section">Question 1</h1><!--======================================== Part 1 ========================================-->
+    <p>Mark all dots in the following images with a plus symbol in red using only basic morphological operations. Edit the web template to display your result images and the code that was used to generate it for this and all subsequent parts. This question must be completed in <strong>both</strong> MATLAB and OpenCV.</p>
+    <table>
+        <tbody>
+            <tr>
+                <td style="text-align: center;"><img src="images/p1/in/1.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p1/in/2.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <h2 id="a">Part A</h2><!--======================================== Part Part ========================================-->
+    <p>This portion should be written in MATLAB.</p>
+    <table>
+        <tbody>
+            <tr>
+                <td style="text-align: center;"><img src="images/p1/out/1a.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p1/out/2a.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 1A ========================================-->
+         <object type="text/html" class="codeobject" data="code/p1/p1a.m">
+        </object>
+    </div>
+    <h2 id="b">Part B</h2><!--======================================== Part Part ========================================-->
+    <p>This portion should be written in OpenCV.</p>
+    <table>
+        <tbody>
+            <tr>
+                <td style="text-align: center;"><img src="images/p1/out/1b.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p1/out/2b.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 1B ========================================-->
+         <object type="text/html" class="codeobject" data="code/p1/p1b.py">
+        </object>
+    </div>
+    <hr />
+    <h1 id="section-1">Question 2</h1><!--======================================== Part 2 ========================================-->
+    <p>Write a program that is able to identify and mark horizontal and vertical lines between the braille letters in the input image. Your resulting image for the first input should contain 6 vertical lines and 3 horizontal lines overlayed over the input image.</p>
+    <table>
+        <tbody>
+            <tr>
+                <td style="text-align: center;"><strong>Input</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/p2/in/1.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p2/out/1.jpg" alt="image" /></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/p2/in/2.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p2/out/2.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 2 ========================================-->
+         <object type="text/html" class="codeobject" data="code/p2/p2.m">
+        </object>
+    </div>
+    <hr />
+    <h1 id="section-2">Question 3</h1><!--======================================== Part 3 ========================================-->
+    <p>Write a program that will modify the given image into two separate outputs: one output containing only the braille character at the given coordinate with everything else colored white and one containing the opposite (the braille character at the coordinate colored white). The coordinate (1, 1) represents the top left braille character.</p>
+    <p><strong>Input Images:</strong></p>
+    <table>
+        <tbody>
+            <tr>
+                <td style="text-align: center;"><img src="images/p3/in/1.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p3/in/2.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <table>
+        <tbody>
+            <tr>
+                <td style="text-align: center;"><strong>Coordinates</strong></td>
+                <td style="text-align: center;"><strong>Only the Letter</strong></td>
+                <td style="text-align: center;"><strong>Everything Except the Letter</strong></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">
+                    <pre><code>1, 2</code></pre>
+                </td>
+                <td style="text-align: center;"><img src="images/p3/out/1a.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p3/out/1b.jpg" alt="image" /></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">
+                    <pre><code>3, 5</code></pre>
+                </td>
+                <td style="text-align: center;"><img src="images/p3/out/2a.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p3/out/2b.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 3 ========================================-->
+         <object type="text/html" class="codeobject" data="code/p3/p3.m">
+        </object>
+    </div>
+    <hr />
+    <h1 id="section-3">Question 4</h1><!--======================================== Part 4 ========================================-->
+    <p>Find all Q braille characters (⠟) in the given images and color them green.</p>
+    <p>You may find cutouts of all braille characters in the ’braille_cutouts’ folder.</p>
+    <table>
+        <tbody>
+            <tr>
+                <td style="text-align: center;"><strong>Input</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/p4/in/1.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p4/out/1.jpg" alt="image" /></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/p4/in/2.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p4/out/2.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 4 ========================================-->
+         <object type="text/html" class="codeobject" data="code/p4/p4.m">
+        </object>
+    </div>
+    <hr />
+    <h1 id="section-4">Question 5</h1><!--======================================== Part 5 ========================================-->
+    <p>Repeat the previous problem but for Q (⠟), W (⠺), and Y (⠽). Each different letter category should be colored in a separate color.</p>
+    <p>You may find cutouts of all braille characters in the ’braille_cutouts’ folder.</p>
+    <table>
+        <tbody>
+            <tr>
+                <td style="text-align: center;"><strong>Input</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/p5/in/1.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p5/out/1.jpg" alt="image" /></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/p5/in/2.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p5/out/2.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 5 ========================================-->
+         <object type="text/html" class="codeobject" data="code/p5/p5.m">
+        </object>
+    </div>
+    <hr />
+    <h1 id="section-5">Question 6</h1><!--======================================== Part 6 ========================================-->
+    <p>In this problem you must find the characters Q (⠟), W (⠺), and Y (⠽) and replace them with their corresponding English characters. To achieve full points the original braille characters must not be visible.</p>
+    <p>You may find cutouts of all braille characters in the ’braille_cutouts’ folder.</p>
+    <p>You may find cutouts of all English characters in the ’english_cutouts’ folder.</p>
+    <table>
+        <tbody>
+            <tr>
+                <td style="text-align: center;"><strong>Input</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/p6/in/1.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p6/out/1.jpg" alt="image" /></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/p6/in/2.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p6/out/2.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 6 ========================================-->
+         <object type="text/html" class="codeobject" data="code/p6/p6.m">
+        </object>
+    </div>
+    <hr />
+    <h1 id="section-6">Question 7</h1><!--======================================== Part 7 ========================================-->
+    <p>Find all instances of the letter S (⠎) in the input images and color them green.</p>
+    <p>You may find cutouts of all braille characters in the ’braille_cutouts’ folder.</p>
+    <table>
+        <tbody>
+            <tr>
+                <td style="text-align: center;"><strong>Input</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/p7/in/1.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p7/out/1.jpg" alt="image" /></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/p7/in/2.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p7/out/2.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 7 ========================================-->
+         <object type="text/html" class="codeobject" data="code/p7/p7.m">
+        </object>
+    </div>
+    <hr />
+    <h1 id="section-7">Question 8</h1><!--======================================== Part 8 ========================================-->
+    <p>Write a program that will generate an image where all braille letters in the input are converted into English characters.</p>
+    <p>You may find cutouts of all braille characters in the ’braille_cutouts’ folder.</p>
+    <p>You may find cutouts of all English characters in the ’english_cutouts’ folder.</p>
+    <table>
+        <tbody>
+            <tr>
+                <td style="text-align: center;"><strong>Input</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/p8/in/1.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p8/out/1.jpg" alt="image" /></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/p8/in/2.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p8/out/2.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 8 ========================================-->
+         <object type="text/html" class="codeobject" data="code/p8/p8.m">
+        </object>
+    </div>
+    <hr />
+    <h1 id="section-8">Question 9</h1><!--======================================== Part 9 ========================================-->
+    <p>Write a program that will translate the given word into English text and print it to the console. You should submit a screenshot of your terminal window.</p>
+    <p>You may find cutouts of all braille characters in the ’braille_cutouts’ folder.</p>
+    <table>
+        <tbody>
+            <tr>
+                <td style="text-align: center;"><strong>Input</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/p9/in/1.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p9/out/1.png" alt="image" /></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/p9/in/2.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p9/out/2.png" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 9 ========================================-->
+         <object type="text/html" class="codeobject" data="code/p9/p9_new.m">
+        </object>
+    </div>
+    <hr />
+    <h1 id="section-9">Question 10</h1><!--======================================== Part 10 ========================================-->
+    <p>Write a program that will translate all of the given words into English text and print it to the console. Each word should be printed on a new line. You should submit a screenshot of your terminal window.</p>
+    <p>You may find cutouts of all braille characters in the ’braille_cutouts’ folder.</p>
+    <table>
+        <tbody>
+            <tr>
+                <td style="text-align: center;"><strong>Input</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/p10/in/1.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p10/out/p10_1.png" alt="image" /></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/p10/in/2.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/p10/out/p10_2.png" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 10 ========================================-->
+         <object type="text/html" class="codeobject" data="code/p10/p10.m">
+        </object>
+    </div>
+    <hr />
+    <h1 id="ec-1">Question EC 1</h1><!--======================================== Part EC ========================================-->
+    <p>Write a program that is able to print the given braille paragraphs to the console. The program must retain all newlines and spaces that are in the input text. You should submit a screenshot of your terminal window.</p>
+    <p>You may find cutouts of all braille characters in the ’braille_cutouts’ folder.</p>
+    <table>
+        <tbody>
+            <tr>
+                <td style="text-align: center;"><strong>Input</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/ec1/in/1.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/ec1/out/ec1_1.png" alt="image" /></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/ec1/in/2.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/ec1/out/ec1_2.png" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART EC 1 ========================================-->
+         <object type="text/html" class="codeobject" data="code/ec1/ec1.m">
+        </object>
+    </div>
+    <hr />
+    <h1 id="ec-2">Question EC 2</h1><!--======================================== Part EC ========================================-->
+    <p>This problem is similar to EC1, except the paragraphs now also contain numbers. Check the section <em>Braille Numbers—Internationally Standardised</em> on <a href="https://www.pharmabraille.com/pharmaceutical-braille/the-braille-alphabet/">this</a> page for information on describing numbers in braille. You should submit a screenshot of your terminal window.</p>
+    <p>You may find cutouts of all braille characters, including the ’number indicator’, in the ’braille_cutouts’ folder.</p>
+    <table>
+        <tbody>
+            <tr>
+                <td style="text-align: center;"><strong>Input</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/ec2/in/1.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/ec2/out/1.png" alt="image" /></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><img src="images/ec2/in/2.jpg" alt="image" /></td>
+                <td style="text-align: center;"><img src="images/ec2/out/2.png" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART EC 2 ========================================-->
+         <object type="text/html" class="codeobject" data="code/ec2/ec2.m">
+        </object>
+    </div>
+    <hr />
+    <p>This document was last modified on 2026-02-03.</p>
+</body>
+</html>
