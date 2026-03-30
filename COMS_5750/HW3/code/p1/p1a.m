@@ -1,36 +1,42 @@
-% P1A
-% vr = VideoReader('./../../images/p1/in/1.mp4');
-vr = VideoReader('./../../images/p1/in/2.mp4');
-vr.CurrentTime = 0.0;
-mhist = uint8(zeros(vr.Height, vr.Width));
+function process_video(input_path, output_path)
+    vr = VideoReader(input_path);
+    vr.CurrentTime = 0.0;
+    mhist = uint8(zeros(vr.Height, vr.Width));
 
-% --- Setup VideoWriter ---
-% vw = VideoWriter('./../../images/p1/out/1a.mp4', 'MPEG-4');
-vw = VideoWriter('./../../images/p1/out/2a.mp4', 'MPEG-4');
-vw.FrameRate = vr.FrameRate;
-open(vw);
+    vw = VideoWriter(output_path, 'MPEG-4');
+    vw.FrameRate = vr.FrameRate;
+    open(vw);
 
-if hasFrame(vr)
-    pFrame = readFrame(vr);
-    pFrameGray = im2gray(pFrame);
+    if hasFrame(vr)
+        pFrame = readFrame(vr);
+        pFrameGray = im2gray(pFrame);
+    end
+
+    while hasFrame(vr)
+        cFrame = readFrame(vr);
+        cFrameGray = im2gray(cFrame);
+        diff = uint8(abs(double(cFrameGray) - double(pFrameGray)));
+        change = find(diff > 20);
+        mhist(change) = 255;
+        writeVideo(vw, mhist);
+        mhist = mhist - 10;
+        pFrameGray = cFrameGray;
+    end
+
+    close(vw);
+    fprintf('  Saved: %s\n', output_path);
 end
 
-while hasFrame(vr)
-    cFrame = readFrame(vr);
-    cFrameGray = im2gray(cFrame);
-    diff = uint8(abs(double(cFrameGray) - double(pFrameGray)));
-    change = find(diff > 20);
-    mhist(change) = 255;
-    % imshow(mhist);
-    
-    % --- Write frame to video ---
-    writeVideo(vw, mhist);
-    
-    mhist = mhist - 10;
-    % pause(1/vr.FrameRate);
-    pFrameGray = cFrameGray;
+% --- Main ---
+script_dir = fileparts(mfilename('fullpath'));
+base_in    = fullfile(script_dir, '..', '..', 'images', 'p1', 'in');
+base_out   = fullfile(script_dir, '..', '..', 'images', 'p1', 'out');
+
+for vid_num = [1, 2]
+    in_path  = fullfile(base_in,  sprintf('%d.mp4',  vid_num));
+    out_path = fullfile(base_out, sprintf('%da.mp4', vid_num));
+    fprintf('Processing video %d...\n', vid_num);
+    process_video(in_path, out_path);
 end
 
-% --- Finalize video ---
-close(vw);
-disp('Motion history video saved.');
+disp('Done.');

@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import os
 
-# HSV ranges (OpenCV: H 0-180, S/V 0-255)
+# HSV ranges
 LOWER_ORANGE = np.array([5,  150, 150])
 UPPER_ORANGE = np.array([20, 255, 255])
 
@@ -12,16 +12,13 @@ UPPER_GREEN  = np.array([80, 255, 255])
 # Slight dilation to cover anti-aliased block edges
 DILATE_KERNEL = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
 
-
 def sample_green(frame):
-    """Return median BGR of green pixels in frame, or None if none found."""
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, LOWER_GREEN, UPPER_GREEN)
     pixels = frame[mask > 0]
     if len(pixels) == 0:
         return None
     return np.median(pixels, axis=0).astype(np.uint8)
-
 
 def process_video(input_path, output_path):
     cap = cv2.VideoCapture(input_path)
@@ -36,7 +33,6 @@ def process_video(input_path, output_path):
     fourcc = cv2.VideoWriter_fourcc(*'avc1')
     writer = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
-    # Sample green from the first few frames to get a stable reference
     green_bgr = None
     frames_buffer = []
     while green_bgr is None and len(frames_buffer) < 30:
@@ -52,11 +48,9 @@ def process_video(input_path, output_path):
 
     print(f'  Green reference BGR: {green_bgr}')
 
-    # Process buffered frames first, then continue with the rest
     def recolor_frame(frame, green_bgr):
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         orange_mask = cv2.inRange(hsv, LOWER_ORANGE, UPPER_ORANGE)
-        # orange_mask = cv2.dilate(orange_mask, DILATE_KERNEL, iterations=1)
         frame[orange_mask > 0] = green_bgr
         return frame
 
@@ -68,7 +62,6 @@ def process_video(input_path, output_path):
         if not ret:
             break
 
-        # Update green reference if green pixels are still present
         sampled = sample_green(frame)
         if sampled is not None:
             green_bgr = sampled
@@ -79,7 +72,6 @@ def process_video(input_path, output_path):
     writer.release()
     print(f'  Saved: {output_path}')
 
-
 if __name__ == '__main__':
     script_dir = os.path.dirname(__file__)
     for vid_num in [1, 2]:
@@ -87,4 +79,4 @@ if __name__ == '__main__':
         out_path = os.path.join(script_dir, '..', '..', 'images', 'p6', 'out', f'{vid_num}.mp4')
         print(f'Processing video {vid_num}...')
         process_video(in_path, out_path)
-    print('Done.')
+    print('Video Processing Completed.')

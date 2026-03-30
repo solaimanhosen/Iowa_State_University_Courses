@@ -5,8 +5,7 @@ import os
 
 random.seed(42)
 
-# --- Hardcoded source hues for each Tetris piece color (OpenCV H: 0-180) ---
-# Identified from inspecting the videos across all HW3 problems
+# Hardcoded source hues for each Tetris piece color
 SOURCE_HUES = [
     5,    # Red
     15,   # Orange
@@ -17,23 +16,16 @@ SOURCE_HUES = [
     150,  # Magenta
 ]
 
-SAT_THRESHOLD = 60    # min HSV saturation to treat a pixel as a piece (not background)
-HUE_MATCH_TOL = 12    # pixels within this hue distance of a source get remapped
-
+SAT_THRESHOLD = 60
+HUE_MATCH_TOL = 12
 
 def hue_dist(a, b):
     """Circular hue distance (0-180 scale)."""
     d = abs(a - b)
     return min(d, 180 - d)
 
-
-# --- Build random target hue mapping (computed once at startup) ---
-# Each source hue gets a random target that is:
-#   - far from all source hues
-#   - far from all already-chosen target hues
-#   - meaningfully different from its own source
-MIN_DIST_FROM_SRC     = 30   # target must differ from its own source
-MIN_DIST_FROM_TARGETS = 15   # target must differ from already-chosen targets
+MIN_DIST_FROM_SRC     = 30
+MIN_DIST_FROM_TARGETS = 15
 
 chosen_targets = []
 TARGET_HUES = []
@@ -54,8 +46,6 @@ print("Color mapping (source hue → target hue):")
 for src, tgt in MAPPING:
     print(f"  {round(src):>3} → {round(tgt):>3}")
 
-
-# --- Per-frame hue remapping ---
 def remap_frame(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV).astype(np.float32)
     h, s, v = hsv[:, :, 0], hsv[:, :, 1], hsv[:, :, 2]
@@ -72,8 +62,6 @@ def remap_frame(frame):
     out_hsv = np.stack([new_h, s, v], axis=2).astype(np.uint8)
     return cv2.cvtColor(out_hsv, cv2.COLOR_HSV2BGR)
 
-
-# --- Process videos ---
 def process_video(input_path, output_path):
     cap = cv2.VideoCapture(input_path)
     if not cap.isOpened():
@@ -97,7 +85,6 @@ def process_video(input_path, output_path):
     writer.release()
     print(f'  Saved: {output_path}')
 
-
 if __name__ == '__main__':
     script_dir = os.path.dirname(__file__)
     for vid_num in [1, 2]:
@@ -105,4 +92,4 @@ if __name__ == '__main__':
         out_path = os.path.join(script_dir, '..', '..', 'images', 'p7', 'out', f'{vid_num}.mp4')
         print(f'\nProcessing video {vid_num}...')
         process_video(in_path, out_path)
-    print('\nDone.')
+    print('\nVideo Processing Completed.')

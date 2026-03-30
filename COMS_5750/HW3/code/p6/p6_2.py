@@ -10,8 +10,7 @@ LOWER_GREEN  = np.array([40, 100, 100])
 UPPER_GREEN  = np.array([80, 255, 255])
 
 # How close a pixel must be to the sampled orange (per channel, in BGR)
-TOLERANCE = 50
-
+TOLERANCE = 80
 
 def sample_color(frame, lower_hsv, upper_hsv):
     """Return median BGR of pixels matching the given HSV range, or None."""

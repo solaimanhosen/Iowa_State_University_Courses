@@ -2,18 +2,16 @@ import cv2
 import numpy as np
 import os
 
-# --- Preview ROI ---
+# Future Tetromino Region
 PREVIEW_Y1, PREVIEW_Y2 = 30, 82
 PREVIEW_X1, PREVIEW_X2 = 255, 350
 
-# --- Template settings ---
-TEMPLATE_SIZE = (PREVIEW_X2 - PREVIEW_X1, PREVIEW_Y2 - PREVIEW_Y1)  # (95, 52)
-SAT_THRESH    = 80     # min HSV saturation to count as piece pixel
-MIN_PIXELS    = 150    # min active pixels for a valid preview frame
-MIN_MATCH     = 0.3    # min matchTemplate score to accept a result
+# Structurel Eelment settings
+TEMPLATE_SIZE = (PREVIEW_X2 - PREVIEW_X1, PREVIEW_Y2 - PREVIEW_Y1)
+SAT_THRESH    = 80
+MIN_PIXELS    = 150
+MIN_MATCH     = 0.3
 
-# --- Piece name mapping: template index → name ---
-# Inspect images/p9/templates/template_*_ref.png to verify
 PIECE_NAMES = {
     0: 'Skew',
     1: 'T',
@@ -24,7 +22,7 @@ PIECE_NAMES = {
     6: 'Skew',
 }
 
-# --- HSV hue → color name (OpenCV H: 0-180) ---
+# HSV hue to color name
 HUE_COLORS = [
     ((0,   10),  'Red'),
     ((10,  25),  'Orange'),
@@ -36,15 +34,13 @@ HUE_COLORS = [
     ((165,180),  'Red'),
 ]
 
-# --- Overlay style ---
+# Overlay style
 FONT       = cv2.FONT_HERSHEY_SIMPLEX
 FONT_SCALE = 0.55
 FONT_THICK = 2
-TEXT_POS   = (10, 20)    # top-left of frame
-
+TEXT_POS   = (10, 20)
 
 def load_templates(template_dir):
-    """Load binary templates as normalized float32 arrays."""
     templates = {}
     for idx in PIECE_NAMES:
         path = os.path.join(template_dir, f'template_{idx}.png')
@@ -54,26 +50,20 @@ def load_templates(template_dir):
         templates[idx] = img.astype(np.float32) / 255.0
     return templates
 
-
 def get_binary_mask(roi):
-    """Binary mask of piece pixels (high saturation)."""
     hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
     s = hsv[:, :, 1]
     _, mask = cv2.threshold(s, SAT_THRESH, 255, cv2.THRESH_BINARY)
     return mask
 
-
 def tight_crop(mask):
-    """Crop mask to the bounding box of active pixels."""
     coords = cv2.findNonZero(mask)
     if coords is None:
         return mask
     x, y, w, h = cv2.boundingRect(coords)
     return mask[y:y+h, x:x+w]
 
-
 def identify_piece(mask, templates):
-    """Return (piece_idx, score) of the best-matching template."""
     cropped = tight_crop(mask)
     m = cv2.resize(cropped, TEMPLATE_SIZE).astype(np.float32) / 255.0
     best_idx, best_score = -1, -1.0
@@ -85,9 +75,7 @@ def identify_piece(mask, templates):
             best_idx = idx
     return best_idx, best_score
 
-
 def identify_color(roi, mask):
-    """Return color name of the dominant hue among piece pixels."""
     hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
     hue_vals = hsv[:, :, 0][mask > 0]
     if len(hue_vals) == 0:
@@ -98,9 +86,7 @@ def identify_color(roi, mask):
             return name
     return 'Unknown'
 
-
 def color_bgr(color_name):
-    """BGR value for each color name (for text rendering)."""
     mapping = {
         'Red':     (0,   0,   220),
         'Orange':  (0,   140, 255),
@@ -112,7 +98,6 @@ def color_bgr(color_name):
         'Unknown': (200, 200, 200),
     }
     return mapping.get(color_name, (200, 200, 200))
-
 
 def process_video(input_path, output_path, templates):
     cap = cv2.VideoCapture(input_path)
@@ -164,7 +149,6 @@ def process_video(input_path, output_path, templates):
     writer.release()
     print(f'  Saved: {output_path}')
 
-
 if __name__ == '__main__':
     script_dir   = os.path.dirname(__file__)
     template_dir = os.path.join(script_dir, '..', '..', 'images', 'p9', 'templates')
@@ -178,4 +162,4 @@ if __name__ == '__main__':
         print(f'Processing video {vid_num}...')
         process_video(in_path, out_path, templates)
 
-    print('Done.')
+    print('\nVideo Processing Completed.')

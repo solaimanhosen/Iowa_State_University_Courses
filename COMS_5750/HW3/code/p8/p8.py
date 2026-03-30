@@ -2,23 +2,21 @@ import cv2
 import numpy as np
 import os
 
-# HSV ranges for red (wraps around hue=0)
+# HSV ranges for red
 LOWER_RED1 = np.array([0,   150, 150])
 UPPER_RED1 = np.array([10,  255, 255])
 LOWER_RED2 = np.array([170, 150, 150])
 UPPER_RED2 = np.array([180, 255, 255])
 
-# O-piece validation thresholds
-MIN_AREA        = 300    # minimum contour area (filters noise)
-MIN_FILL_RATIO  = 0.85   # contour area / bounding rect area (rejects partial pieces)
-MAX_ASPECT_DEV  = 0.25   # max deviation from aspect ratio 1.0 (|w/h - 1| <= this)
+MIN_AREA        = 300
+MIN_FILL_RATIO  = 0.85
+MAX_ASPECT_DEV  = 0.25
 
 PURPLE = (128, 0, 128)
 BOX_THICK = 2
 
 KERNEL_OPEN  = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
 KERNEL_CLOSE = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))
-
 
 def get_red_mask(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -28,7 +26,6 @@ def get_red_mask(frame):
     mask  = cv2.morphologyEx(mask, cv2.MORPH_OPEN,  KERNEL_OPEN)
     mask  = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, KERNEL_CLOSE)
     return mask
-
 
 def is_valid_o_piece(contour):
     area = cv2.contourArea(contour)
@@ -46,7 +43,6 @@ def is_valid_o_piece(contour):
         return False, None
 
     return True, (x, y, w, h)
-
 
 def process_video(input_path, output_path):
     cap = cv2.VideoCapture(input_path)
@@ -82,7 +78,6 @@ def process_video(input_path, output_path):
     writer.release()
     print(f'  Saved: {output_path}')
 
-
 if __name__ == '__main__':
     script_dir = os.path.dirname(__file__)
     for vid_num in [1, 2]:
@@ -90,4 +85,5 @@ if __name__ == '__main__':
         out_path = os.path.join(script_dir, '..', '..', 'images', 'p8', 'out', f'{vid_num}.mp4')
         print(f'Processing video {vid_num}...')
         process_video(in_path, out_path)
-    print('Done.')
+
+    print('\nVideo Processing Completed.')

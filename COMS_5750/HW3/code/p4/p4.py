@@ -2,27 +2,20 @@ import cv2
 import numpy as np
 import os
 
-# ── Region of interest for the score display (hardcoded) ──────────────────────
-# The right panel shows "score  <value>" in a box at this location.
-# Frame size: 360 × 416 (height × width)
-SCORE_ROI = (130, 160, 310, 405)   # (y1, y2, x1, x2)
+# Hardcoded Region for the score display
+# (y1, y2, x1, x2)
+SCORE_ROI = (130, 160, 310, 405)   
 
-# Threshold to binarize the score region: digit pixels are dark (~0–70),
-# background is light (~200+).  BINARY_INV makes digits white on black.
 THRESH_VAL = 80
-
-# Minimum blob dimensions to accept as a digit candidate
 MIN_BLOB_W = 2
 MIN_BLOB_H = 5
 
-# Template directory (relative to this script's location)
+# Structurel Element directory
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__),
                              '..', '..', 'images', 'p4', 'in', 'templates')
-# Maps template filename suffix → canonical digit label.
-# Multiple templates for the same digit handle sub-pixel antialiasing variants.
 DIGIT_TEMPLATES = {
-    '0':  '0',   # "0" hollow at cols 2-3 (position x=49 in ROI)
-    '0b': '0',   # "0" hollow at cols 3-4 (position x=39 in ROI)
+    '0':  '0',
+    '0b': '0',
     '1':  '1',
     '2':  '2',
     '3':  '3',
@@ -30,21 +23,13 @@ DIGIT_TEMPLATES = {
     '8':  '8',
 }
 
-# Where to draw the recognized score on the output frame
-DISPLAY_POS  = (10, 45)              # (x, y) in pixels
+# Overlay Score Config
+DISPLAY_POS  = (10, 45)
 DISPLAY_SCALE = 1.0
-DISPLAY_COLOR = (30, 30, 30)         # near-black
+DISPLAY_COLOR = (30, 30, 30)
 DISPLAY_THICK = 2
 
-
-# ── Template helpers ───────────────────────────────────────────────────────────
-
 def load_templates(template_dir, digit_map):
-    """Load binary digit templates from PNG files.
-
-    digit_map: dict of {filename_suffix -> canonical_digit_label}
-    Returns:   dict of {filename_suffix -> (canonical_label, binary_image)}
-    """
     templates = {}
     for suffix, canonical in digit_map.items():
         path = os.path.join(template_dir, f'digit_{suffix}.png')
@@ -55,12 +40,9 @@ def load_templates(template_dir, digit_map):
         templates[suffix] = (canonical, binary)
     return templates
 
-
 def match_digit(crop, templates):
-    """Return canonical digit label for the best-matching template."""
     best_label, best_conf = '?', -1.0
     for canonical, template in templates.values():
-        # Resize template to the crop's size so matchTemplate returns a 1×1 result
         t = cv2.resize(template, (crop.shape[1], crop.shape[0]),
                        interpolation=cv2.INTER_NEAREST)
         result = cv2.matchTemplate(crop.astype(np.float32),
@@ -72,21 +54,13 @@ def match_digit(crop, templates):
             best_label = canonical
     return best_label, best_conf
 
-
-# ── Per-frame score recognition ────────────────────────────────────────────────
-
 def recognize_score(frame, templates):
-    """
-    Extract the score value from the frame.
-    Returns the score as a string of digit characters (e.g. '1200').
-    """
     y1, y2, x1, x2 = SCORE_ROI
     roi  = frame[y1:y2, x1:x2]
     gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-
     _, thresh = cv2.threshold(gray, THRESH_VAL, 255, cv2.THRESH_BINARY_INV)
 
-    # Find connected-component blobs; commas are too sparse to cross the filter
+    # Find connected-component
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL,
                                    cv2.CHAIN_APPROX_SIMPLE)
     boxes = []
@@ -107,16 +81,12 @@ def recognize_score(frame, templates):
 
     return ''.join(digits)
 
-
 def format_score(score_str):
     """Add thousands comma, e.g. '1200' → '1,200'."""
     try:
         return f'{int(score_str):,}'
     except (ValueError, TypeError):
         return score_str or '0'
-
-
-# ── Video processing ───────────────────────────────────────────────────────────
 
 def process_video(input_path, output_path, templates):
     cap = cv2.VideoCapture(input_path)
@@ -131,7 +101,7 @@ def process_video(input_path, output_path, templates):
     fourcc = cv2.VideoWriter_fourcc(*'avc1')
     writer = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
-    last_score = '0'   # carry the last known score across frames
+    last_score = '0'
 
     while True:
         ret, frame = cap.read()
@@ -144,7 +114,6 @@ def process_video(input_path, output_path, templates):
 
         label_text = f'Score: {format_score(last_score)}'
 
-        # Draw a white background rectangle so text is readable over the board
         (tw, th), baseline = cv2.getTextSize(
             label_text, cv2.FONT_HERSHEY_SIMPLEX, DISPLAY_SCALE, DISPLAY_THICK)
         px, py = DISPLAY_POS
@@ -163,9 +132,6 @@ def process_video(input_path, output_path, templates):
     writer.release()
     print(f'  Saved: {output_path}')
 
-
-# ── Main ───────────────────────────────────────────────────────────────────────
-
 if __name__ == '__main__':
     templates = load_templates(TEMPLATE_DIR, DIGIT_TEMPLATES)
     print(f'Loaded templates: {list(templates.keys())}')
@@ -177,4 +143,4 @@ if __name__ == '__main__':
         print(f'Processing video {vid_num}...')
         process_video(in_path, out_path, templates)
 
-    print('Done.')
+    print('\nVideo Processing Completed.')

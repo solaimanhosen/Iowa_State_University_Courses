@@ -2,12 +2,12 @@ import cv2
 import numpy as np
 import os
 
-DIFF_THRESH    = 20       # absdiff pixel threshold to count as motion
-MIN_AREA       = 200      # minimum contour area to consider as the object
-TRAIL_COLOR    = (0, 255, 255)   # cyan trail
-TRAIL_RADIUS   = 4               # dot radius at each trail point
-TRAIL_THICK    = 2               # polyline thickness
-
+# CONFIG
+DIFF_THRESH    = 20
+MIN_AREA       = 200
+TRAIL_COLOR    = (0, 255, 255)
+TRAIL_RADIUS   = 4
+TRAIL_THICK    = 2
 
 def process_video(input_path, output_path):
     cap = cv2.VideoCapture(input_path)
@@ -26,7 +26,8 @@ def process_video(input_path, output_path):
     kernel_open  = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
     kernel_close = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (25, 25))
 
-    trail = []   # list of (cx, cy) — never cleared
+    # list of (cx, cy)
+    trail = []
 
     ret, prev_frame = cap.read()
     if not ret:
@@ -36,7 +37,7 @@ def process_video(input_path, output_path):
         return
     prev_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
 
-    # write first frame as-is (no motion yet)
+    # write first frame as-is
     writer.write(prev_frame)
 
     while True:
@@ -46,15 +47,14 @@ def process_video(input_path, output_path):
 
         curr_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        # --- motion mask from frame differencing ---
+        # motion mask from frame differencing
         diff = cv2.absdiff(curr_gray, prev_gray)
         _, mask = cv2.threshold(diff, DIFF_THRESH, 255, cv2.THRESH_BINARY)
 
-        # remove noise, then merge leading/trailing edges into one blob
         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN,  kernel_open)
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel_close)
 
-        # --- find largest contour → centroid ---
+        # find largest contour then centroid
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL,
                                        cv2.CHAIN_APPROX_SIMPLE)
         if contours:
@@ -66,7 +66,7 @@ def process_video(input_path, output_path):
                     cy = int(M['m01'] / M['m00'])
                     trail.append((cx, cy))
 
-        # --- draw persistent trail on original frame ---
+        # draw persistent trail on original frame
         if len(trail) >= 2:
             pts = np.array(trail, dtype=np.int32).reshape((-1, 1, 2))
             cv2.polylines(frame, [pts], isClosed=False,
@@ -81,7 +81,6 @@ def process_video(input_path, output_path):
     writer.release()
     print(f'  Saved: {output_path}')
 
-
 if __name__ == '__main__':
     script_dir = os.path.dirname(__file__)
     for vid_num in [1, 2]:
@@ -89,4 +88,5 @@ if __name__ == '__main__':
         out_path = os.path.join(script_dir, '..', '..', 'images', 'p5', 'out', f'{vid_num}.mp4')
         print(f'Processing video {vid_num}...')
         process_video(in_path, out_path)
-    print('Done.')
+
+    print('\nVideo Processing Completed.')
