@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+    <meta name="generator" content="HTML Tidy for HTML5 for Linux version 5.8.0" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <meta name="author" content="Name: Student Name Email: student@iastate.edu" />
+    <title>Homework 4</title>
+    <style>
+    <![CDATA[
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    ]]>
+    </style>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <header id="title-block-header">
+        <h1 class="title">Homework 4</h1>
+        <p class="subtitle">CprE 5750: Computational Perception</p>
+        <p class="author">Name: Student Name<br />
+        Email: student@iastate.edu</p>
+    </header>
+    <p>This homework must be submitted as a zip file containing all code files, images, and audio files. The HTML file may need to be modified to include all code and files.</p>
+    <p>Supporting material can be found on <a href="https://www.ece.iastate.edu/~alexs/classes/2026_Spring_5750/">the class webpage</a>.</p>
+    <p>The following is a list of tools/info/libraries that may or may not be useful towards the completion of this homework or exploration of the topic</p>
+    <ul>
+        <li>
+            <p><a href="https://en.wikipedia.org/wiki/Morse_code">Morse Code</a> wikipedia page for morse code</p>
+        </li>
+        <li>
+            <p><a href="https://morsecode.world/international/translator.html">Morse Code Generator</a> the morse code generator used to construct this homework. Useful for generating test cases</p>
+        </li>
+        <li>
+            <p><a href="https://www.audacityteam.org/download/">Audacity</a> a simple digital audio workstation that allows for viewing and editing audio files, as well as their spectrograms</p>
+        </li>
+        <li>
+            <p><a href="https://www.fftw.org/">Fastest Fourier Transform in the West</a> FFT C Library</p>
+        </li>
+        <li>
+            <p><a href="http://www.mega-nerd.com/libsndfile/">libsndfile</a> C library for reading and writing audio files</p>
+        </li>
+        <li>
+            <p><a href="https://docs.scipy.org/doc/scipy/tutorial/fft.html">scipy.fft</a> Python library for performing fast fourier transforms</p>
+        </li>
+        <li>
+            <p><a href="https://python-soundfile.readthedocs.io/en/0.13.1/">soundfile</a> Python library for reading and writing audio files</p>
+        </li>
+        <li>
+            <p><a href="https://www.youtube.com/watch?v=nmgFG7PUHfo">The Most Important Algorithm Of All Time - Veritasium</a> Historical context of the FFT and basic functionality</p>
+        </li>
+        <li>
+            <p><a href="https://www.youtube.com/watch?v=spUNpyF58BY">But what is the Fourier Transform? A visual introduction - 3Blue1Brown</a> extremely well animated visualization of the continuous fourier transform</p>
+        </li>
+    </ul>
+    <p><img src="images/morse_code.png" alt="image" /></p>
+    <h1 id="signal-processing-onramp">Question 1: Signal Processing Onramp</h1><!--======================================== Part 1: ========================================-->
+    <p>For this part complete the Matlab signal processing onramp tutorial posted <a href="https://matlabacademy.mathworks.com/details/signal-processing-onramp/signalprocessing">here</a>. Take four screenshots as you complete this course (around 30%, 60%, 100% done, as well as your certificate). Link these photos below to prove that you did the course.</p>
+    <p><strong>Screenshots</strong></p>
+    <p><img src="images/placeholder.jpg" alt="image" /></p>
+    <p><img src="images/placeholder.jpg" alt="image" /></p>
+    <p><img src="images/placeholder.jpg" alt="image" /></p>
+    <p><img src="images/placeholder.jpg" alt="image" /></p>
+    <hr />
+    <h1 id="a-slow-dft">Question 2a: Slow DFT</h1><!--======================================== Part 2a: ========================================-->
+    <p>Implement the Discrete Fourier Transform (DFT) in C, C++, MATLAB, Java, or Python. Implement the <strong>slow</strong> version that multiplies the transform matrix by the input vector in <span class="math inline"><em>O</em>(<em>N</em><sup>2</sup>)</span> time. Your code should support input vectors of size up to 1024. In addition, you must implement your own functions to deal with complex numbers (You are not allowed to use a library for complex number arithmetic, you should only need to implement +, -, and *)</p>
+    <p><strong>Source Code</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 2a: Slow DFT ========================================-->
+         <object type="text/html" class="codeobject" data="code/p2/p2a.py">
+        </object>
+    </div>
+    <hr />
+    <h1 id="b-slow-idft">Question 2b: Slow IDFT</h1><!--======================================== Part 2b: ========================================-->
+    <p>Implement the Inverse Discrete Fourier Transform (IDFT) in C, C++, MATLAB, Java, or Python. Implement the <strong>slow</strong> version that multiplies the transform matrix by the input vector in <span class="math inline"><em>O</em>(<em>N</em><sup>2</sup>)</span> time. Your code should support input vectors of size up to 1024. In addition, you must implement your own functions to deal with complex numbers (You are not allowed to use a library for complex number arithmetic, you should only need to implement +, -, and *)</p>
+    <p><strong>Source Code</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 2b: Slow IDFT ========================================-->
+         <object type="text/html" class="codeobject" data="code/p2/p2b.py">
+        </object>
+    </div>
+    <hr />
+    <h1 id="a-fft">Question 3a: FFT</h1><!--======================================== Part 3a: ========================================-->
+    <p>Implement the Fast Fourier Transform (FFT) in C, C++, MATLAB, Java, or Python. Implement the <strong>fast</strong> version that uses recursion and runs in <span class="math inline"><em>O</em>(<em>N</em><em>l</em><em>o</em><em>g</em><sub>2</sub><em>N</em>)</span> time. Note that you are not allowed to use MATLAB’s implementation nor any other existing library for this problem. Your code should support input vectors of size up to 1024. Use your code from Part 2a to cross-check your implementation. In part 3, you can yse any library functions that work with complex numbers (but not in part 2).</p>
+    <p><strong>Source Code</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 3a: FFT ========================================-->
+         <object type="text/html" class="codeobject" data="code/p3/p3a.py">
+        </object>
+    </div>
+    <hr />
+    <h1 id="b-ifft">Question 3b: IFFT</h1><!--======================================== Part 3b: ========================================-->
+    <p>Implement the Inverse Fast Fourier Transform (IFFT) in C, C++, MATLAB, Java, or Python. Implement the <strong>fast</strong> version that uses recursion and runs in <span class="math inline"><em>O</em>(<em>N</em><em>l</em><em>o</em><em>g</em><sub>2</sub><em>N</em>)</span> time. Note that you are not allowed to use MATLAB’s implementation nor any other existing library for this problem. Your code should support input vectors of size up to 1024. Use your code from Part 2b to cross-check your implementation. In part 3, you can use any library functions that work with complex numbers (but not in part 2).</p>
+    <p><strong>Source Code</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 3b: IFFT ========================================-->
+         <object type="text/html" class="codeobject" data="code/p3/p3b.py">
+        </object>
+    </div>
+    <hr />
+    <h1 id="a-fft-check">Question 4a: FFT Check</h1><!--======================================== Part 4a: ========================================-->
+    <p>Using your implementation from Part 2a and 3a, compute the Discrete Fourier Transform of the following vector:</p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 4a: FFT Check ========================================-->
+         <object type="text/html" class="codeobject" data="inputs/p4/CheckVectorA.txt">
+        </object>
+    </div>
+    <p><em>Note: This function is a sine wave sampled every π/8 radians, you may choose to calculate this vector with more decimal places.</em></p>
+    <p><strong>Slow DFT</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 4a: FFT Check ========================================-->
+         <object type="text/html" class="codeobject" data="outputs/p4/DFTout.txt">
+        </object>
+    </div>
+    <p><strong>FFT</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 4a: FFT Check ========================================-->
+         <object type="text/html" class="codeobject" data="outputs/p4/FFTout.txt">
+        </object>
+    </div>
+    <p>Compare your output with the output generated by MATLAB’s fft() method for the same vector. Include the result below, and point out any discrepancies. You may also use one of the FFT libraries above, if you choose.</p>
+    <p><strong>Matlab Result</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 4a: FFT Check ========================================-->
+         <object type="text/html" class="codeobject" data="outputs/p4/MATLABFFTout.txt">
+        </object>
+    </div>
+    <p><strong>Analysis</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 4a: FFT Check ========================================-->
+         <object type="text/html" class="codeobject" data="outputs/p4/analysisA.txt">
+        </object>
+    </div>
+    <hr />
+    <h1 id="b-ifft-check">Question 4b: IFFT Check</h1><!--======================================== Part 4b: ========================================-->
+    <p>Using your implementation from Part 2b and 3b, compute the inverse Discrete Fourier Transform of the following vector</p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 4b: IFFT Check ========================================-->
+         <object type="text/html" class="codeobject" data="inputs/p4/CheckVectorB.txt">
+        </object>
+    </div>
+    <p><strong>Slow IDFT</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 4b: IFFT Check ========================================-->
+         <object type="text/html" class="codeobject" data="outputs/p4/IDFTout.txt">
+        </object>
+    </div>
+    <p><strong>IFFT</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 4b: IFFT Check ========================================-->
+         <object type="text/html" class="codeobject" data="outputs/p4/IFFTout.txt">
+        </object>
+    </div>
+    <p>Compare your output with the output generated by MATLAB’s ifft() method for the same vector. Include the result below, and point out any discrepancies. You may also use one of the IFFT libraries above, if you choose.</p>
+    <p><strong>Matlab Result</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 4b: IFFT Check ========================================-->
+         <object type="text/html" class="codeobject" data="outputs/p4/MATLABIFFTout.txt">
+        </object>
+    </div>
+    <p><strong>Analysis</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 4b: IFFT Check ========================================-->
+         <object type="text/html" class="codeobject" data="outputs/p4/analysisB.txt">
+        </object>
+    </div>
+    <hr />
+    <h1 id="a-matlab-spectrograms">Question 5a: MATLAB Spectrograms</h1><!--======================================== Part 5a: ========================================-->
+    <p>In this section you will try to replicate MATLAB’s spectrogram function in MATLAB without using either the stft function or the spectrogram function. You may use the FFT implementation provided in MATLAB.</p>
+    <p>You will use your implementation to plot two audio files. The first audio file will be provided to you, but the second you will have to record yourself. You can do this in Audacity or any other program you like that produces WAV files. Describe how the file was recorded (i.e. sampling rate, duration, description, etc.) as well as the parameters used in the spectrogram in comments in your code.</p>
+    <p>Hint: Read MATLAB’s documentation of the <a href="https://www.mathworks.com/help/signal/ref/spectrogram.html">spectrogram function</a>. This will help you find the default parameters of the function and what windowing function it uses. (Implementing the default parameters is sufficient for this problem).</p>
+    <table>
+        <tbody>
+            <tr class="odd">
+                <td style="text-align: center;"><strong>Audio Data</strong></td>
+                <td style="text-align: center;"><strong>Spectrogram</strong></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p5/ramp.wav" type="audio/wav" /> <a href="inputs/p5/ramp.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="odd">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p5/studentA.wav" type="audio/wav" /> <a href="inputs/p5/studentA.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <p><strong>Source Code</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 5a: MATLAB Spectrograms ========================================-->
+         <object type="text/html" class="codeobject" data="code/p5/p5a.m">
+        </object>
+    </div>
+    <hr />
+    <h1 id="b-custom-implementation-spectrograms">Question 5b: Custom Implementation Spectrograms</h1><!--======================================== Part 5b: ========================================-->
+    <p>Now you will implement the spectrogram function from above in a programming language of your choice using your FFT implementation from Question 3. As before, the default parameters matlab uses are sufficient.</p>
+    <p>Use this implementation to plot two audio files. The first audio file will be provided to you, but the second you will have to record yourself. You can do this in Audacity or any other program you like that produces WAV files. Describe how the file was recorded (i.e. sampling rate, duration, description, etc.) as well as the parameters used in the spectrogram in comments in your code.</p>
+    <table>
+        <tbody>
+            <tr class="odd">
+                <td style="text-align: center;"><strong>Audio Data</strong></td>
+                <td style="text-align: center;"><strong>Spectrogram</strong></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p5/siren.wav" type="audio/wav" /> <a href="inputs/p5/siren.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="odd">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p5/studentB.wav" type="audio/wav" /> <a href="inputs/p5/studentB.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <p><strong>Source Code</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 5b: Custom Implementation Spectrograms ========================================-->
+         <object type="text/html" class="codeobject" data="code/p5/p5b.py">
+        </object>
+    </div>
+    <hr />
+    <h1 id="a-detecting-morse-code-letters-made-of-dots">Question 6a: Detecting morse code letters made of dots</h1><!--======================================== Part 6a: ========================================-->
+    <p><a href="https://en.wikipedia.org/wiki/Morse_code">Morse Code</a></p>
+    <p>In this problem, using a language of your choice, you will parse audio files that contain a single morse code letter consisting only of dots, and print the letter to the console.</p>
+    <p>Take a screenshot of the output of your code running in the terminal and include it in the table below.</p>
+    <p>Hint: It is recommended that you use a spectrogram and/or fft function to visualize the files. While this problem may be solvable without them, using them in your solution will build up to later problems where it will be necessary.</p>
+    <p>Note: From here on in the homework, you may use any FFT implementation that suits your fancy, whether it be your own or a library, so long as it is made clear how to run your code for the purposes of grading.</p>
+    <table>
+        <tbody>
+            <tr class="odd">
+                <td style="text-align: center;"><strong>Morse Audio</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p6/letter1.wav" type="audio/wav" /> <a href="inputs/p6/letter1.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="odd">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p6/letter2.wav" type="audio/wav" /> <a href="inputs/p6/letter2.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p6/letter3.wav" type="audio/wav" /> <a href="inputs/p6/letter3.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="odd">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p6/letter4.wav" type="audio/wav" /> <a href="inputs/p6/letter4.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <p><strong>Source Code</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 6a: Detecting morse code letters made of dots ========================================-->
+         <object type="text/html" class="codeobject" data="code/p6/p6a.py">
+        </object>
+    </div>
+    <hr />
+    <h1 id="b-detecting-letters-made-of-dashes">Question 6b: Detecting letters made of dashes</h1><!--======================================== Part 6b: ========================================-->
+    <p>Take a screenshot of the output of your code running in the terminal. In this problem, using a language of your choice, you will parse audio files that contain a single morse code letter consisting only of dashes, and print the letter to the console.</p>
+    <p>Take a screenshot of the output of your code running in the terminal and include it in the table below.</p>
+    <p>Hint: It is recommended that you use a spectrogram and/or fft function to visualize the files. While this problem may be solvable without them, using them in your solution will build up to later problems where it will be necessary.</p>
+    <table>
+        <tbody>
+            <tr class="odd">
+                <td style="text-align: center;"><strong>Morse Audio</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p6/letter5.wav" type="audio/wav" /> <a href="inputs/p6/letter5.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="odd">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p6/letter6.wav" type="audio/wav" /> <a href="inputs/p6/letter6.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p6/letter7.wav" type="audio/wav" /> <a href="inputs/p6/letter7.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <p><strong>Source Code</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 6b: Detecting letters made of dashes ========================================-->
+         <object type="text/html" class="codeobject" data="code/p6/p6b.py">
+        </object>
+    </div>
+    <hr />
+    <h1 id="a-recognizing-individual-numbers">Question 7a: Recognizing individual numbers</h1><!--======================================== Part 7a: ========================================-->
+    <p>In this part you will write code to recognize morse code numbers in provided audio files. Although we only provide 5 test cases, the digits in these test cases are random, meaning your code should be able to classify any of the 10 digits. This will also be useful in following parts of the assignment.</p>
+    <p>Your code should print the number contained in the audio file to the terminal.</p>
+    <p>Take a screenshot of the output of your code running in the terminal.</p>
+    <table>
+        <tbody>
+            <tr class="odd">
+                <td style="text-align: center;"><strong>Morse Audio</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p7/number1.wav" type="audio/wav" /> <a href="inputs/p7/number1.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="odd">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p7/number2.wav" type="audio/wav" /> <a href="inputs/p7/number2.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p7/number3.wav" type="audio/wav" /> <a href="inputs/p7/number3.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="odd">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p7/number4.wav" type="audio/wav" /> <a href="inputs/p7/number4.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p7/number5.wav" type="audio/wav" /> <a href="inputs/p7/number5.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <p><strong>Source Code</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 7a: Recognizing individual numbers ========================================-->
+         <object type="text/html" class="codeobject" data="code/p7/p7a.py">
+        </object>
+    </div>
+    <hr />
+    <h1 id="b-recognizing-individual-letters">Question 7b: Recognizing individual letters</h1><!--======================================== Part 7b: ========================================-->
+    <p>In this part you will write code to recognize morse code letters in provided audio files. Although we only provide 5 test cases, the letters in these test cases are random, meaning your code should be able to classify any of the 26 letters. This will also be useful in following parts of the assignment.</p>
+    <p>Your code should print the letter contained in the audio file to the terminal.</p>
+    <p>Take a screenshot of the output of your code running in the terminal.</p>
+    <table>
+        <tbody>
+            <tr class="odd">
+                <td style="text-align: center;"><strong>Morse Audio</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p7/letter1.wav" type="audio/wav" /> <a href="inputs/p7/letter1.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="odd">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p7/letter2.wav" type="audio/wav" /> <a href="inputs/p7/letter2.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p7/letter3.wav" type="audio/wav" /> <a href="inputs/p7/letter3.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="odd">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p7/letter4.wav" type="audio/wav" /> <a href="inputs/p7/letter4.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p7/letter5.wav" type="audio/wav" /> <a href="inputs/p7/letter5.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <p><strong>Source Code</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 7b: Recognizing individual letters ========================================-->
+         <object type="text/html" class="codeobject" data="code/p7/p7b.py">
+        </object>
+    </div>
+    <hr />
+    <h1 id="a-word-parsing">Question 8a: Word parsing</h1><!--======================================== Part 8a: ========================================-->
+    <p>You will be provided with 4 audio files each containing either a word or a letter in morse code.</p>
+    <p>Write code to parse these words/sequences of numbers and print them to the console along with the frequency in Hz at which they are encoded. Note: Do not lose your mind trying to find the exact frequency, you will be considered correct if your answer is within +/- 50Hz.</p>
+    <p>Include screenshots of the output of your code in the table below.</p>
+    <table>
+        <tbody>
+            <tr class="odd">
+                <td style="text-align: center;"><strong>Morse Audio</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p8/word1.wav" type="audio/wav" /> <a href="inputs/p8/word1.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="odd">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p8/word2.wav" type="audio/wav" /> <a href="inputs/p8/word2.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p8/word3.wav" type="audio/wav" /> <a href="inputs/p8/word3.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="odd">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p8/word4.wav" type="audio/wav" /> <a href="inputs/p8/word4.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <p><strong>Source Code</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 8a: Word parsing ========================================-->
+         <object type="text/html" class="codeobject" data="code/p8/p8a.py">
+        </object>
+    </div>
+    <hr />
+    <h1 id="b-sentence-parsing">Question 8b: Sentence parsing</h1><!--======================================== Part 8b: ========================================-->
+    <p>You will be provided with 4 audio files each containing sentences with both words and sequences of numbers in morse code.</p>
+    <p>Write code to parse these sentences and print them to the console along with the frequency in Hz at which they are encoded. Note: Do not lose your mind trying to find the exact frequency, you will be considered correct if your answer is within +/- 50Hz.</p>
+    <p>Include screenshots of the output of your code in the table below.</p>
+    <table>
+        <tbody>
+            <tr class="odd">
+                <td style="text-align: center;"><strong>Morse Audio</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p8/sentence1.wav" type="audio/wav" /> <a href="inputs/p8/sentence1.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="odd">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p8/sentence2.wav" type="audio/wav" /> <a href="inputs/p8/sentence2.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p8/sentence3.wav" type="audio/wav" /> <a href="inputs/p8/sentence3.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+            <tr class="odd">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p8/sentence4.wav" type="audio/wav" /> <a href="inputs/p8/sentence4.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <p><strong>Source Code</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 8b: Sentence parsing ========================================-->
+         <object type="text/html" class="codeobject" data="code/p8/p8b.py">
+        </object>
+    </div>
+    <hr />
+    <h1 id="a-morse-synthesis---characters">Question 9a: Morse Synthesis - characters</h1><!--======================================== Part 9a: ========================================-->
+    <p>Write a program that outputs an audio file containing morse code based on an input letter/number and frequency in Hz.</p>
+    <p>Your outputs should be saved in the output/p9 folder as "char1-4.wav".</p>
+    <table>
+        <tbody>
+            <tr class="odd">
+                <td style="text-align: center;"><strong>Morse Audio</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;"><strong>N, 800Hz</strong></td>
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="output/p9/char1.wav" type="audio/wav" /> <a href="output/p9/char1.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+            </tr>
+            <tr class="odd">
+                <td style="text-align: center;"><strong>O, 750Hz</strong></td>
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="output/p9/char2.wav" type="audio/wav" /> <a href="output/p9/char2.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;"><strong>P, 600Hz</strong></td>
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="output/p9/char3.wav" type="audio/wav" /> <a href="output/p9/char3.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+            </tr>
+            <tr class="odd">
+                <td style="text-align: center;"><strong>3, 575Hz</strong></td>
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="output/p9/char4.wav" type="audio/wav" /> <a href="output/p9/char4.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p><strong>Source Code</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 9a: Morse Synthesis - characters ========================================-->
+         <object type="text/html" class="codeobject" data="code/p9/p9a.py">
+        </object>
+    </div>
+    <hr />
+    <h1 id="b-morse-synthesis---sentences">Question 9b: Morse Synthesis - sentences</h1><!--======================================== Part 9b: ========================================-->
+    <p>Write a program that outputs an audio file containing morse code based on an input sentence and frequency in Hz.</p>
+    <p>Your outputs should be saved in the output/p9 folder as "sentence1-2.wav".</p>
+    <table>
+        <tbody>
+            <tr class="odd">
+                <td style="text-align: center;"><strong>Morse Audio</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;"><strong>HOMEWORK FOUR 5750, 625Hz</strong></td>
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="output/p9/sentence1.wav" type="audio/wav" /> <a href="output/p9/sentence1.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+            </tr>
+            <tr class="odd">
+                <td style="text-align: center;"><strong>WORKING WITH AUDIO IS FUN, 775Hz</strong></td>
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="output/p9/sentence2.wav" type="audio/wav" /> <a href="output/p9/sentence2.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p><strong>Source Code</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 9b: Morse Synthesis - sentences ========================================-->
+         <object type="text/html" class="codeobject" data="code/p9/p9b.py">
+        </object>
+    </div>
+    <hr />
+    <h1 id="classical-cryptography">Question 10: Classical Cryptography</h1><!--======================================== Part 10: ========================================-->
+    <p>In this part you will use your accumulated knowledge and code to implement a classical method for sending coded messages, the <a href="https://en.wikipedia.org/wiki/Caesar_cipher">Caesar Cipher</a>.</p>
+    <p>The caesar cipher consists of assigning each letter in the alphabet a number, 0-25, then encoding each character in the message as a new character using the formula.</p>
+    <p><span class="math inline"><em>n</em><em>e</em><em>w</em><em>I</em><em>n</em><em>d</em><em>e</em><em>x</em> = (<em>i</em><em>n</em><em>d</em><em>e</em><em>x</em> + 3)%26</span></p>
+    <p>Learn more here: <a href="https://en.wikipedia.org/wiki/Caesar_cipher">https://en.wikipedia.org/wiki/Caesar_cipher</a>.</p>
+    <p>Your code should take an audio file containing an unencoded message as input, and output an audio file of the same message encoded with the caesar cipher at a different random frequency between 500-800Hz.</p>
+    <table>
+        <tbody>
+            <tr class="odd">
+                <td style="text-align: center;"><strong>Morse Audio</strong></td>
+                <td style="text-align: center;"><strong>Output</strong></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p10/message1.wav" type="audio/wav" /> <a href="inputs/p10/message1.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="output/p10/message1.wav" type="audio/wav" /> <a href="output/p10/message1.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+            </tr>
+            <tr class="odd">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/p10/message2.wav" type="audio/wav" /> <a href="inputs/p10/message2.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="output/p10/message2.wav" type="audio/wav" /> <a href="output/p10/message2.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p><strong>Source Code</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART 10: Classical Cryptography ========================================-->
+         <object type="text/html" class="codeobject" data="code/p10/p10.py">
+        </object>
+    </div>
+    <hr />
+    <h1 id="extra-credit-1-split-overlapped-messages">Question Extra Credit 1: Split overlapped messages</h1><!--======================================== Part Extra ========================================-->
+    <p>Write a program that takes as input an audio file containing two overlayed morse code messages at different frequencies and prints the message contained in both to the terminal.</p>
+    <p>Include a screenshot of your output in the table below.</p>
+    <p>Hint: The morse code messages will show up in different places on the spectrogram.</p>
+    <table>
+        <tbody>
+            <tr class="odd">
+                <td style="text-align: center;"><strong>Overlaped Audio</strong></td>
+                <td style="text-align: center;"><strong>Terminal Output</strong></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="inputs/ec1/overlayed.wav" type="audio/wav" /> <a href="inputs/ec1/overlayed.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+                <td style="text-align: center;"><img src="images/placeholder.jpg" alt="image" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <p><strong>Source Code</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART Extra Credit 1: Split overlapped messages ========================================-->
+         <object type="text/html" class="codeobject" data="code/ec1/ec1.py">
+        </object>
+    </div>
+    <hr />
+    <h1 id="extra-credit-2-generate-overlapped-messages">Question Extra Credit 2: Generate overlapped messages</h1><!--======================================== Part Extra ========================================-->
+    <p>Write a program that takes as input two sentences, converts them into morse code audio and overlays them. Essentially the reverse operation of Extra Credit 1.</p>
+    <p>The two messages should be synthesized at separate frequencies with minimal harmonics so they are able to be parsed later. They should also be at audible frequencies.</p>
+    <p>Include the audio file output in the table below.</p>
+    <p>Your code from the previous question should be able to decode the audio file you generate in this part, which will be useful for testing.</p>
+    <table>
+        <tbody>
+            <tr class="odd">
+                <td style="text-align: center;"><strong>Message 1</strong></td>
+                <td style="text-align: center;"><strong>Message 2</strong></td>
+                <td style="text-align: center;"><strong>Terminal Output</strong></td>
+            </tr>
+            <tr class="even">
+                <td style="text-align: center;"><strong>DO OR DO NOT THERE IS NO TRY</strong></td>
+                <td style="text-align: center;"><strong>A WAY THERE ALWAYS IS</strong></td>
+                <td style="text-align: center;">
+                    <audio class="media" controls="controls"><source src="outputs/ec2/student.wav" type="audio/wav" /> <a href="outputs/ec2/student.wav" class="media mediafile mf_wav" title="audio">audio</a></audio>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p><strong>Source Code</strong></p>
+    <div class="codetext">
+        <!--======================================== CODE FOR PART Extra Credit 2: Generate overlapped messages ========================================-->
+         <object type="text/html" class="codeobject" data="code/ec2/ec2.py">
+        </object>
+    </div>
+    <hr />
+    <p>This document was last modified on 2026-03-12.</p>
+</body>
+</html>
