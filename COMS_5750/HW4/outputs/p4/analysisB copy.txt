@@ -1,0 +1,28 @@
+IFFT Comparison Analysis — Question 4b
+=======================================
+
+Input vector: CheckVectorB.txt
+  [ 0, 0, -8i, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8i, 0 ]
+  This is the DFT output of CheckVectorA (a 16-sample sine wave sampled every
+  pi/8 radians). Its IDFT should recover the original sine wave.
+
+Methods compared:
+  - Our IFFT (Cooley-Tukey radix-2, Part 3b)
+  - MATLAB ifft() equivalent (scipy.fft.ifft)
+
+Expected result:
+  The IDFT of this frequency vector should recover:
+    x[n] = sin(pi/8 * n),  n = 0..15
+  i.e., [ 0, 0.3827, 0.7071, 0.9239, 1, 0.9239, 0.7071, 0.3827,
+           0, -0.3827, -0.7071, -0.9239, -1, -0.9239, -0.7071, -0.3827 ]
+
+Results:
+  Max |Our IFFT - MATLAB IFFT| = 1.50e-16
+
+Discrepancies:
+  None. The maximum difference between our IFFT and MATLAB's IFFT is 1.50e-16,
+  which is within floating-point machine epsilon (~2.22e-16 per operation).
+  These differences arise only from the order of floating-point operations
+  between the two implementations, not from algorithmic error.
+
+Conclusion: outputs are numerically identical (differences within floating-point precision).

@@ -1,0 +1,34 @@
+FFT Comparison Analysis — Question 4a
+======================================
+
+Input vector: CheckVectorA.txt (16-sample sine wave, sampled every pi/8 radians,
+values rounded to 4 decimal places)
+
+Methods compared:
+  - Our FFT (Cooley-Tukey radix-2, Part 3a)
+  - MATLAB fft() equivalent (scipy.fft)
+
+Results:
+  Both methods produce non-zero output only at:
+    X[ 1] =  0.000000 - 8.000082j
+    X[15] = -0.000000 + 8.000082j
+  All other bins are zero (or within floating-point noise ~1e-16).
+
+  Max |Our FFT - MATLAB FFT| = 8.09e-16
+
+Discrepancies:
+  None. The maximum difference between our FFT and MATLAB's FFT is 8.09e-16,
+  which is within floating-point machine epsilon (~2.22e-16 per operation).
+  These differences arise from the order of floating-point operations between
+  the two implementations, not from algorithmic error.
+
+Observations:
+  The expected DFT of a pure sine wave sin(2*pi*n/N) is:
+    X[1]  = -jN/2 = -8j
+    X[N-1] = +jN/2 = +8j  (conjugate mirror)
+  All other bins = 0.
+
+  The small offset from exactly ±8j (i.e., 8.000082 instead of 8.000000) is
+  due to the input values being rounded to 4 decimal places in CheckVectorA.txt
+  (e.g., 0.3827 instead of sin(pi/8) = 0.38268343...). This is an input
+  quantization artifact, not an error in either FFT implementation.

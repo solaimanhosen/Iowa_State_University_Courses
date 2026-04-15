@@ -1,0 +1,4 @@
+
+Discrepancies:
+  None. The maximum difference between our FFT and MATLAB's FFT is 8.09e-16,
+  which is within floating-point machine epsilon (~2.22e-16 per operation).
