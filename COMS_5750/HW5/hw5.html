@@ -1,0 +1,2318 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <meta name="generator" content="AsciiDoc 8.6.9">
+      <title>HCI/CprE/ComS 5750: Homework #5</title>
+      <link rel="stylesheet" href="./riak.css" type="text/css">
+   </head>
+   
+   <body class="article">
+
+      <script>
+         document.addEventListener("DOMContentLoaded", () => {
+           document.querySelectorAll('img').forEach(img => {
+             if (img.src.endsWith('.pgm')) {
+               fetch(img.src)
+                 .then(response => response.arrayBuffer())
+                 .then(buffer => {
+                   const bytes = new Uint8Array(buffer);
+                   let offset = 0;
+         
+                   // Parse PGM header (P5)
+                   function readToken() {
+                     while (bytes[offset] === 0x23) { // skip comment lines
+                       while (bytes[offset++] !== 0x0A); // until newline
+                     }
+                     let token = '';
+                     while (bytes[offset] === 0x20 || bytes[offset] === 0x0A) offset++; // skip spaces/newlines
+                     while (bytes[offset] !== 0x20 && bytes[offset] !== 0x0A) {
+                       token += String.fromCharCode(bytes[offset++]);
+                     }
+                     return token;
+                   }
+         
+                   const magic = readToken();
+                   if (magic !== 'P5') throw new Error('Only P5 binary PGM supported');
+         
+                   const width = parseInt(readToken());
+                   const height = parseInt(readToken());
+                   const maxVal = parseInt(readToken());
+                   if (maxVal > 255) throw new Error('Only 8-bit PGM supported');
+         
+                   // Extract pixel data
+                   const pixelStart = offset + 1;
+                   const pixelData = bytes.slice(pixelStart, pixelStart + width * height);
+         
+                   // Create canvas
+                   const canvas = document.createElement('canvas');
+                   canvas.width = width;
+                   canvas.height = height;
+                   const ctx = canvas.getContext('2d');
+                   const imageData = ctx.createImageData(width, height);
+         
+                   for (let i = 0; i < pixelData.length; i++) {
+                     const gray = pixelData[i];
+                     imageData.data[i * 4 + 0] = gray;
+                     imageData.data[i * 4 + 1] = gray;
+                     imageData.data[i * 4 + 2] = gray;
+                     imageData.data[i * 4 + 3] = 255;
+                   }
+         
+                   ctx.putImageData(imageData, 0, 0);
+                   img.replaceWith(canvas);
+                 })
+                 .catch(err => {
+                   console.error('Failed to load PGM:', img.src, err);
+                 });
+             }
+           });
+         });
+      </script>
+
+      <div id="header">
+         <h1>HCI/CprE/ComS 5750: Homework #5</h1>
+         <!-- MAKE CHANGES HERE: Student information -->
+         <span id="author">Your Name</span><br>
+         <span id="email" class="monospaced">&lt;
+         <a href="mailto:Your Email">Your Email</a>&gt;</span><br>
+         <!-- END CHANGES -->
+      </div>
+	  
+      <div id="content">
+	  
+	  <div id="preamble">
+				<div class="sectionbody">
+					<div class="paragraph">
+						<p>
+						For your output videos to display in the HTML template, you will have to save/convert them to  H.264 (*.mp4).
+						<br><br>	
+						If you are having troubles with H.264, try downloading <a href="https://github.com/cisco/openh264/releases">this DLL</a> and placing it in the folder with the binary (I believe you need version 2.6).
+						<br>
+						Alternatively, you can install <a href="https://ffmpeg.org/">FFMPEG</a> and use it to convert your .avi files to .mp4 using the command below.
+						
+						<div class="listingblock">
+						<div class="title">FFMPEG Command</div>
+						<div class="content">
+							<pre><h4><tt>ffmpeg -i input.avi -c:a aac -b:a 128k -c:v libx264 -crf 23 output.mp4</tt></h4></pre>
+						</div>
+					</div>
+						
+						<br><br>
+						<strong>Do not waste time on this.</strong>
+						<br><br>
+						If you are unable to get these formats working within a few minutes, you are free to pick a different format or to let OpenCV pick its default - .avi is common.
+						</p>
+					</div>
+					<div class="listingblock">
+						<div class="title">FOURCC codes</div>
+						<div class="content">
+							<!-- Generator: GNU source-highlight 3.1.8
+								by Lorenzo Bettini
+								http://www.lorenzobettini.it
+								http://www.gnu.org/software/src-highlite -->
+							<pre><h4><tt><span style="font-weight: bold"><span style="color: #000000">VideoWriter::fourcc('H','2','6','4')</span></span><span style="color: #9A1900">// For H.264</span></span>
+</span></tt></h4></pre>
+						</div>
+					</div>
+				</div>
+		</div>
+
+      <h2>Background Material</h2>
+      <p>
+         For using HAAR cascades in MATLAB, download the appropriate XML file from here. You can also use the HAAR cascades within MATLAB. 
+         <a href="https://github.com/opencv/opencv/tree/4.x/data/haarcascades">https://github.com/opencv/opencv/tree/4.x/data/haarcascades</a> <br>
+      
+         If you are using OpenCV, you can access the XML files using 
+         <div class="listingblock">
+            <div class="title">FOURCC codes</div>
+            <div class="content">
+               <pre><h4><tt><span style="font-weight: bold"><span style="color: #000000">data::haarcascades + "/xml_file_name"
+</span></tt></h4></pre>
+            </div>
+         </div>
+      </p>
+      <p>
+         <a href="https://www.mathworks.com/help/vision/ref/vision.cascadeobjectdetector-system-object.html">https://www.mathworks.com/help/vision/ref/vision.cascadeobjectdetector-system-object.html</a>
+         <br>
+         <a href="https://docs.opencv.org/4.x/da/d60/tutorial_face_main.html">https://docs.opencv.org/4.x/da/d60/tutorial_face_main.html</a>
+         <br>
+         <a href="https://www.cl.cam.ac.uk/research/dtg/attarchive/facedatabase.html">https://www.cl.cam.ac.uk/research/dtg/attarchive/facedatabase.html</a>
+         
+         <br>
+         <a href="https://www.tutorialspoint.com/how-to-detect-cat-faces-in-an-image-in-opencv-using-python">https://www.tutorialspoint.com/how-to-detect-cat-faces-in-an-image-in-opencv-using-python</a>
+      </p>
+<!-- ---------------------------------- START PART 1a ---------------------------------- -->
+      <div class="sect1">
+         <h2 id="_part_1a">Part 1a: Face Detection</h2>
+         <div class="sectionbody">
+            <div class="paragraph">
+               <p>
+               Write a program that detects faces in the given images using HAAR cascades. Draw boxes around each detected face and save the output as a new file, which is then displayed in last row of the table below. You can use either MATLAB or OpenCV for this part. 
+				</p>
+            </div>
+            <table class="tableblock frame-all grid-all" style=" width:100%; ">
+               <col style="width:20%;">
+               <col style="width:20%;">
+			      <col style="width:20%;">
+               <col style="width:20%;">
+               <col style="width:20%;">
+               <tbody>
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="image">
+							<img src="part1/image1.jpg" alt="part1/image1.jpg" width="100%" height="100%">
+							</span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="image">
+							<img src="part1/image2.jpg" alt="part1/image2.jpg" width="100%" height="100%">
+							</span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="image">
+							<img src="part1/image3.jpg" alt="part1/image3.jpg" width="100%" height="100%">
+							</span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="image">
+							<img src="part1/image4.jpg" alt="part1/image4.jpg" width="100%" height="100%">
+							</span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="image">
+							<img src="part1/image5.jpg" alt="part1/image5.jpg" width="100%" height="100%">
+							</span>
+                        </p>
+                     </td>
+                  </tr>
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 1a image 1 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 1a image 2 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+					      <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 1a image 3 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 1a image 4 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 1a image 5 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+            <div class="listingblock">
+               <div class="title">Source</div>
+               <div class="content monospaced">
+                  <!-- MAKE CHANGES HERE: Part 1a code -->
+                  <p>Note: change the file or file name to show you source code in the box below. If this does not work, put a local URL link to your source code file.</p>
+                  <div class="codetext">
+                     <object class="codeobject" type="text/html" data="part1/p1a_code.cpp"></object>
+                  </div>
+                  <!-- END CHANGES -->
+               </div>
+            </div>
+         </div>
+      </div>
+<!-- ----------------------------------- END PART 1a ----------------------------------- -->
+
+<!-- ---------------------------------- START PART 1b ---------------------------------- -->
+<div class="sect1">
+   <h2 id="_part_1b">Part 1b: Face Components Detection</h2>
+   <div class="sectionbody">
+      <div class="paragraph">
+         <p>
+            Detect eyes, noses and mouths in the provided images using HAAR cascades. For each image, you should have 3 different outputs, 1 for eyes, 1 for noses, and 1 for mouths. If you use OpenCV, detect smiles instead of mouths.
+         </p>
+      </div>
+      <table class="tableblock frame-all grid-all" style=" width:100%; ">
+         <col style="width:20%;">
+         <col style="width:20%;">
+         <col style="width:20%;">
+         <col style="width:20%;">
+         <col style="width:20%;">
+         <tbody>
+            <tr>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock"><span class="image">
+               <img src="part1/image1.jpg" alt="part1/image1.jpg" width="100%" height="100%">
+               </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock"><span class="image">
+               <img src="part1/image2.jpg" alt="part1/image2.jpg" width="100%" height="100%">
+               </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock"><span class="image">
+               <img src="part1/image3.jpg" alt="part1/image3.jpg" width="100%" height="100%">
+               </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock"><span class="image">
+               <img src="part1/image4.jpg" alt="part1/image4.jpg" width="100%" height="100%">
+               </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock"><span class="image">
+               <img src="part1/image5.jpg" alt="part1/image5.jpg" width="100%" height="100%">
+               </span>
+                  </p>
+               </td>
+            </tr>
+            <tr>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 1b eyes image 1 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 1b eyes image 2 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 1b eyes image 3 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 1b eyes image 4 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 1b eyes image 5 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+            </tr>
+            <tr>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 1b noses image 1 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 1b noses image 2 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 1b noses image 3 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 1b noses image 4 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 1b noses image 5 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+            </tr>
+            <tr>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 1b mouths image 1 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 1b mouths image 2 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 1b mouths image 3 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 1b mouths image 4 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 1b mouths image 5 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <div class="listingblock">
+         <div class="title">Source</div>
+         <div class="content monospaced">
+            <!-- MAKE CHANGES HERE: Part 1b code -->
+            <p>Note: change the file name to link your code</p>
+            <div class="codetext">
+               <object class="codeobject" type="text/html" data="part1/p1b_code.cpp"></object>
+            </div>
+            <!-- END CHANGES -->
+         </div>
+      </div>
+   </div>
+</div>
+<!-- ----------------------------------- END PART 1b ----------------------------------- -->
+
+<!-- ---------------------------------- START PART 2 ---------------------------------- -->
+      <div class="sect1">
+         <h2 id="_part_2">Part 2: Face Detection in Videos</h2>
+         <div class="sectionbody">
+            <div class="paragraph">
+               <p>
+                  Do the same as part 1a, but now for the provided videos. All videos are provides in both AVI and MP4 format. See the zip file. Pick the format that works best for your platform/OS.
+			   </p>
+            </div>
+
+            <BR>
+            First input video.
+            <BR> 
+            <table class="tableblock frame-all grid-all" style=" width:100%; ">
+               <tbody>
+
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="video">
+                  <video width="100%" src="part2/video1.mp4" type="video/mp4" controls>
+                     Your browser does not support HTML5 video.
+                  </video>
+                  </span>
+                        </p>
+                     </td>
+                     
+                  </tr>
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                              <!-- MAKE CHANGES HERE: Part 2 video 1  -->
+                              <video width="100%" src="part2/video_out1.mp4" type="video/mp4" controls>
+                                 <!-- END CHANGES -->
+                                 Your browser does not support HTML5 video.
+                              </video>
+                           </span>
+                        </p>
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+            
+
+            <BR>
+            Second input video.
+            <BR> 
+               <table class="tableblock frame-all grid-all" style=" width:100%; ">
+                  <tbody>
+   
+                     <tr>
+                        <td class="tableblock halign-left valign-top" >
+                           <p class="tableblock"><span class="video">
+                     <video width="100%" src="part2/video2.mp4" type="video/mp4" controls>
+                        Your browser does not support HTML5 video.
+                     </video>
+                     </span>
+                           </p>
+                        </td>
+                        
+                     </tr>
+                     <tr>
+                        <td class="tableblock halign-left valign-top" >
+                           <p class="tableblock">
+                              <span class="image">
+                                 <!-- MAKE CHANGES HERE: Part 2 video 2  -->
+                                 <video width="100%" src="part2/video_out2.mp4" type="video/mp4" controls>
+                                    <!-- END CHANGES -->
+                                    Your browser does not support HTML5 video.
+                                 </video>
+                              </span>
+                           </p>
+                        </td>
+                     </tr>
+                  </tbody>
+               </table>
+            
+            <BR>
+            Third input video.
+            <BR> 
+               <table class="tableblock frame-all grid-all" style=" width:100%; ">
+                  <tbody>
+   
+                     <tr>
+                        <td class="tableblock halign-left valign-top" >
+                           <p class="tableblock"><span class="video">
+                     <video width="100%" src="part2/video3.mp4" type="video/mp4" controls>
+                        Your browser does not support HTML5 video.
+                     </video>
+                     </span>
+                           </p>
+                        </td>
+                        
+                     </tr>
+                     <tr>
+                        <td class="tableblock halign-left valign-top" >
+                           <p class="tableblock">
+                              <span class="image">
+                                 <!-- MAKE CHANGES HERE: Part 2 video 3  -->
+                                 <video width="100%" src="part2/video_out3.mp4" type="video/mp4" controls>
+                                    <!-- END CHANGES -->
+                                    Your browser does not support HTML5 video.
+                                 </video>
+                              </span>
+                           </p>
+                        </td>
+                     </tr>
+                  </tbody>
+               </table>
+            <div class="listingblock">
+               <div class="title">Source</div>
+               <div class="content monospaced">
+                  <!-- MAKE CHANGES HERE: Part 2a code -->
+                  <p>Note: change the file name to link your code</p>
+                  <div class="codetext">
+                     <object class="codeobject" type="text/html" data="part2/p2_code.cpp"></object>
+                  </div>
+                  <!-- END CHANGES -->
+               </div>
+            </div>
+         </div>
+      </div>
+<!-- ----------------------------------- END PART 2 ----------------------------------- -->
+
+
+
+<!-- ---------------------------------- START PART 3 ---------------------------------- -->	  
+      <div class="sect1">
+         <h2 id="_part_3">Part 3: Face Detection (alternative method)</h2>
+         <div class="sectionbody">
+            <div class="paragraph">
+               <p>
+                  Write a program that detects faces in the given images using LBP cascades in MATLAB. Draw boxes around each detected face and save the output. 
+                  <br>
+                  To change the classification model to LBP you can use this command line in MATLAB:
+                  <br>
+                  faceDetector = vision.CascadeObjectDetector('FrontalFaceLBP');
+               </p>
+            </div>
+            <table class="tableblock frame-all grid-all" style=" width:100%; ">
+               <col style="width:20%;">
+               <col style="width:20%;">
+			      <col style="width:20%;">
+               <col style="width:20%;">
+               <col style="width:20%;">
+               <tbody>
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="image">
+							<img src="part3/image1.jpg" alt="part3/image1.jpg" width="100%" height="100%">
+							</span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="image">
+							<img src="part3/image2.jpg" alt="part3/image2.jpg" width="100%" height="100%">
+							</span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="image">
+							<img src="part3/image3.jpg" alt="part3/image3.jpg" width="100%" height="100%">
+							</span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="image">
+							<img src="part3/image4.jpg" alt="part3/image4.jpg" width="100%" height="100%">
+							</span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="image">
+							<img src="part3/image5.jpg" alt="part3/image5.jpg" width="100%" height="100%">
+							</span>
+                        </p>
+                     </td>
+                  </tr>
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 3 image 1 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 3 image 2 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+					      <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 3 image 3 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 3 image 4 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 3 image 5 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+            
+            <div class="listingblock">
+               <div class="title">Source</div>
+               <div class="content monospaced">
+                  <!-- MAKE CHANGES HERE: Part 3 MATLAB code -->
+                  <p>Note: change the file name to link your code</p>
+                  <div class="codetext">
+                     <object class="codeobject" type="text/html" data="part3/p3_code.m"></object>
+                  </div>
+                  <!-- END CHANGES -->
+               </div>
+            </div>
+         </div>
+      </div>
+
+<!-- ----------------------------------- END PART 3 ----------------------------------- -->
+
+<!-- ---------------------------------- START PART 4a ---------------------------------- -->	  
+      <div class="sect1">
+         <h2 id="_part_4a">Part 4a: Face Detection (test with your own images)</h2>
+         <div class="sectionbody">
+            <div class="paragraph">
+               <p>
+                  Detect faces, eyes and mouths using HAAR cascades for 3 images provided by you. For each image, you should have 3 different outputs, 1 for faces, 1 for eyes, and 1 for mouths. If you use OpenCV, detect smiles instead of mouths.               </p>
+            </div>
+
+            <table class="tableblock frame-all grid-all" style=" width:100%; ">
+               <col style="width:10%;">
+               <col style="width:30%;">
+               <col style="width:30%;">
+			      <col style="width:30%;">
+               <tbody>
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           Input Images
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 4a input image 1 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 4a input image 2 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+					      <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 4a input image 3 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                  </tr>
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           Detected Faces output
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 4a faces output image 1 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 4a faces output image 2 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+					      <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 4a faces output image 3 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                  </tr>
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           Detected Eyes output
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 4a eyes output image 1 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 4a eyes output image 2 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+					      <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 4a eyes output image 3 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                  </tr>
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           Detected Mouths output
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 4a mouths output image 1 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 4a mouths output image 2 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+					      <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 4a mouths output image 3 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+            
+
+            <div class="listingblock">
+               <div class="title">Source</div>
+               <div class="content monospaced">
+                  <!-- MAKE CHANGES HERE: Part 4a code -->
+                  <p>Note: change the file name to link your code</p>
+                  <div class="codetext">
+                     <object class="codeobject" type="text/html" data="part4/p4a_code.cpp"></object>
+                  </div>
+                  <!-- END CHANGES -->
+               </div>
+            </div>
+         </div>
+      </div>
+
+<!-- ----------------------------------- END PART 4a ----------------------------------- -->
+
+<!-- ---------------------------------- START PART 4b ---------------------------------- -->	  
+      <div class="sect1">
+         <h2 id="_part_4b">Part 4b: Face Detection (test with your own video)</h2>
+         <div class="sectionbody">
+            <div class="paragraph">
+            <p>
+               Repeat the task from 4a, but now for 1 video that you provided. The video should not be more that 15 seconds long.
+            </p>
+            </div>
+
+            <BR>
+               Input video.
+               <BR> 
+               <table class="tableblock frame-all grid-all" style=" width:100%; ">
+                  <tbody>
+   
+                     <tr>
+                        <td class="tableblock halign-left valign-top" >
+                           <p class="tableblock"><span class="video">
+                     <video width="100%" controls>
+                        <source src="part4/p4b_video1.mp4" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                     </video>
+                     </span>
+                           </p>
+                        </td>
+                        
+                     </tr>
+                     <tr>
+                        <td class="tableblock halign-left valign-top" >
+                           <p class="tableblock">
+                              <span class="image">
+                              <video width="100%" controls>
+                           <!-- MAKE CHANGES HERE: Part 4b faces video  -->
+                           <source src="part4/p4b_result1.mp4" type="video/mp4">
+                           <!-- END CHANGES -->
+                           Your browser does not support HTML5 video.
+                        </video>
+                              </span>
+                           </p>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tableblock halign-left valign-top" >
+                           <p class="tableblock">
+                              <span class="image">
+                              <video width="100%" controls>
+                           <!-- MAKE CHANGES HERE: Part 4b eyes video  -->
+                           <source src="part4/p4b_result1.mp4" type="video/mp4">
+                           <!-- END CHANGES -->
+                           Your browser does not support HTML5 video.
+                        </video>
+                              </span>
+                           </p>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tableblock halign-left valign-top" >
+                           <p class="tableblock">
+                              <span class="image">
+                              <video width="100%" controls>
+                           <!-- MAKE CHANGES HERE: Part 4b mouths video  -->
+                           <source src="part4/p4b_result1.mp4" type="video/mp4">
+                           <!-- END CHANGES -->
+                           Your browser does not support HTML5 video.
+                        </video>
+                              </span>
+                           </p>
+                        </td>
+                     </tr>
+                  </tbody>
+               </table>
+
+            <div class="listingblock">
+               <div class="title">Source</div>
+               <div class="content monospaced">
+                  <!-- MAKE CHANGES HERE: Part 4b code -->
+                  <p>Note: change the file name to link your code</p>
+                  <div class="codetext">
+                     <object class="codeobject" type="text/html" data="part4/p4b_code.cpp"></object>
+                  </div>
+                  <!-- END CHANGES -->
+               </div>
+            </div>
+         </div>
+      </div>
+
+<!-- ----------------------------------- END PART 4b ----------------------------------- -->
+
+<!-- ---------------------------------- START PART 5a ---------------------------------- -->	  
+      <div class="sect1">
+         <h2 id="_part_5a">Part 5a: Detect Cat Faces (in images) </h2>
+         <div class="sectionbody">
+            <div class="paragraph">
+               <p>
+                  This is similar to part 1a but now you have to detect faces of cats in the provided images. Please review the background material at the top of this page to find out how to use the cat face cascade. Two pre-trained cascades for cats can be downloaded from this <a href="https://github.com/opencv/opencv/tree/4.x/data/haarcascades">link</a>.
+            </p>
+            </div>
+
+            <table class="tableblock frame-all grid-all" style=" width:100%; ">
+               <col style="width:20%;">
+               <col style="width:20%;">
+			      <col style="width:20%;">
+               <col style="width:20%;">
+               <col style="width:20%;">
+               <tbody>
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="image">
+							<img src="part5/image1.jpg" alt="part5/image1.jpg" width="100%" height="100%">
+							</span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="image">
+							<img src="part5/image2.jpg" alt="part5/image2.jpg" width="100%" height="100%">
+							</span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="image">
+							<img src="part5/image3.jpg" alt="part5/image3.jpg" width="100%" height="100%">
+							</span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="image">
+							<img src="part5/image4.jpg" alt="part5/image4.jpg" width="100%" height="100%">
+							</span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="image">
+							<img src="part5/image5.jpg" alt="part5/image5.jpg" width="100%" height="100%">
+							</span>
+                        </p>
+                     </td>
+                  </tr>
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 5a image 1 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 5a image 2 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+					      <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 5a image 3 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 5a image 4 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                        <!-- MAKE CHANGES HERE: Part 5a image 5 -->
+                        <img src="placeholder.jpg" width="100%"  >
+                        <!-- END CHANGES -->
+                           </span>
+                        </p>
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+            
+            
+            <div class="listingblock">
+               <div class="title">Source</div>
+               <div class="content monospaced">
+                  <!-- MAKE CHANGES HERE: Part 5a code -->
+                  <p>Note: change the file name to link your code</p>
+                  <div class="codetext">
+                     <object class="codeobject" type="text/html" data="part5/p5a_code.cpp"></object>
+                  </div>
+                  <!-- END CHANGES -->
+               </div>
+            </div>
+         </div>
+      </div>
+
+<!-- ----------------------------------- END PART 5a ----------------------------------- -->
+
+<!-- ---------------------------------- START PART 5b ---------------------------------- -->	  
+      <div class="sect1">
+         <h2 id="_part_5b">Part 5b: Detect Cat Faces (in videos)</h2>
+         <div class="sectionbody">
+            <div class="paragraph">
+               <p>
+                  Repeat the task from 5a, but now your program must detect faces of cats in the provided videos.
+            </p>
+            </div>
+
+            <BR>
+               First input video.
+               <BR> 
+               <table class="tableblock frame-all grid-all" style=" width:100%; ">
+                  <tbody>
+   
+                     <tr>
+                        <td class="tableblock halign-left valign-top" >
+                           <p class="tableblock"><span class="video">
+                     <video width="100%" src="part5/video1.mp4" type="video/mp4" controls>
+                        Your browser does not support HTML5 video.
+                     </video>
+                     </span>
+                           </p>
+                        </td>
+                        
+                     </tr>
+                     <tr>
+                        <td class="tableblock halign-left valign-top" >
+                           <p class="tableblock">
+                              <span class="image">
+                                 <!-- MAKE CHANGES HERE: Part 5b video 1  -->
+                                 <video width="100%" src="part5/video_out1.mp4" type="video/mp4" controls>
+                                    <!-- END CHANGES -->
+                                    Your browser does not support HTML5 video.
+                                 </video>
+                              </span>
+                           </p>
+                        </td>
+                     </tr>
+                  </tbody>
+               </table>
+               
+   
+               <BR>
+               Second input video.
+               <BR> 
+                  <table class="tableblock frame-all grid-all" style=" width:100%; ">
+                     <tbody>
+      
+                        <tr>
+                           <td class="tableblock halign-left valign-top" >
+                              <p class="tableblock"><span class="video">
+                        <video width="100%" src="part5/video2.mp4" type="video/mp4" controls>
+                           Your browser does not support HTML5 video.
+                        </video>
+                        </span>
+                              </p>
+                           </td>
+                           
+                        </tr>
+                        <tr>
+                           <td class="tableblock halign-left valign-top" >
+                              <p class="tableblock">
+                                 <span class="image">
+                                    <!-- MAKE CHANGES HERE: Part 5b video 2  -->
+                                    <video width="100%" src="part5/video_out2.mp4" type="video/mp4" controls>
+                                       <!-- END CHANGES -->
+                                       Your browser does not support HTML5 video.
+                                    </video>
+                                 </span>
+                              </p>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               
+               <BR>
+               Third input video.
+               <BR> 
+                  <table class="tableblock frame-all grid-all" style=" width:100%; ">
+                     <tbody>
+      
+                        <tr>
+                           <td class="tableblock halign-left valign-top" >
+                              <p class="tableblock"><span class="video">
+                        <video width="100%" src="part5/video3.mp4" type="video/mp4" controls>
+                           Your browser does not support HTML5 video.
+                        </video>
+                        </span>
+                              </p>
+                           </td>
+                           
+                        </tr>
+                        <tr>
+                           <td class="tableblock halign-left valign-top" >
+                              <p class="tableblock">
+                                 <span class="image">
+                                    <!-- MAKE CHANGES HERE: Part 5b video 3  -->
+                                    <video width="100%" src="part5/video_ouy3.mp4" type="video/mp4" controls>
+                                       <!-- END CHANGES -->
+                                       Your browser does not support HTML5 video.
+                                    </video>
+                                 </span>
+                              </p>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+            
+            <div class="listingblock">
+               <div class="title">Source</div>
+               <div class="content monospaced">
+                  <!-- MAKE CHANGES HERE: Part 5b code -->
+                  <p>Note: change the file name to link your code</p>
+                  <div class="codetext">
+                     <object class="codeobject" type="text/html" data="part5/p5b_code.cpp"></object>
+                  </div>
+                  <!-- END CHANGES -->
+               </div>
+            </div>
+         </div>
+      </div>
+
+<!-- ----------------------------------- END PART 5b ----------------------------------- -->
+
+<!-- ---------------------------------- START PART 6a ---------------------------------- -->	  
+<div class="sect1">
+   <h2 id="_part_6a">Part 6a: Modify the Videos to Show Only the Faces</h2>
+   <div class="sectionbody">
+      <div class="paragraph">
+         <p>
+            For each of the provided videos, detect the human faces. Then, blackout everything in the frames except for the detected faces. Save the output videos.
+      </p>
+      </div>
+
+      <BR>
+         First input video.
+         <BR> 
+         <table class="tableblock frame-all grid-all" style=" width:100%; ">
+            <tbody>
+
+               <tr>
+                  <td class="tableblock halign-left valign-top" >
+                     <p class="tableblock"><span class="video">
+               <video width="100%" src="part6/p6a_video1.mp4" type="video/mp4" controls>
+                  Your browser does not support HTML5 video.
+               </video>
+               </span>
+                     </p>
+                  </td>
+                  
+               </tr>
+               <tr>
+                  <td class="tableblock halign-left valign-top" >
+                     <p class="tableblock">
+                        <span class="image">
+                           <!-- MAKE CHANGES HERE: Part 6a video 1  -->
+                           <video width="100%" src="part6/video_out1.mp4" type="video/mp4" controls>
+                              <!-- END CHANGES -->
+                              Your browser does not support HTML5 video.
+                           </video>
+                        </span>
+                     </p>
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+         
+
+         <BR>
+         Second input video.
+         <BR> 
+            <table class="tableblock frame-all grid-all" style=" width:100%; ">
+               <tbody>
+
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="video">
+                  <video width="100%" src="part6/p6a_video2.mp4" type="video/mp4" controls>
+                     Your browser does not support HTML5 video.
+                  </video>
+                  </span>
+                        </p>
+                     </td>
+                     
+                  </tr>
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                              <!-- MAKE CHANGES HERE: Part 6a video 2  -->
+                              <video width="100%" src="part6/video_out2.mp4" type="video/mp4" controls>
+                                 <!-- END CHANGES -->
+                                 Your browser does not support HTML5 video.
+                              </video>
+                           </span>
+                        </p>
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+         
+         <BR>
+         Third input video.
+         <BR> 
+            <table class="tableblock frame-all grid-all" style=" width:100%; ">
+               <tbody>
+
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="video">
+                  <video width="100%" src="part6/p6a_video3.mp4" type="video/mp4" controls>
+                     Your browser does not support HTML5 video.
+                  </video>
+                  </span>
+                        </p>
+                     </td>
+                     
+                  </tr>
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="image">
+                              <!-- MAKE CHANGES HERE: Part 6a video 3  -->
+                              <video width="100%" src="part6/video_out3.mp4" type="video/mp4" controls>
+                                 <!-- END CHANGES -->
+                                 Your browser does not support HTML5 video.
+                              </video>
+                           </span>
+                        </p>
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+      
+      <div class="listingblock">
+         <div class="title">Source</div>
+         <div class="content monospaced">
+            <!-- MAKE CHANGES HERE: Part 6a code -->
+            <p>Note: change the file name to link your code</p>
+            <div class="codetext">
+               <object class="codeobject" type="text/html" data="part6/p6a_code.cpp"></object>
+            </div>
+            <!-- END CHANGES -->
+         </div>
+      </div>
+   </div>
+</div>
+
+<!-- ----------------------------------- END PART 6a ----------------------------------- -->
+
+<!-- ---------------------------------- START PART 6b ---------------------------------- -->	  
+<div class="sect1">
+   <h2 id="_part_6b">Part 6b: Extract Face Images from Videos</h2>
+   <div class="sectionbody">
+      <div class="paragraph">
+         <p>
+            Modify your code from part 6a. For each of the detected faces in the input videos, extract the face and save it as an image. 
+            Extract the faces every 1 second. For each input video, create a separate folder to store the output faces.
+      </p>
+      </div>
+
+      <div class="listingblock">
+         <div class="title">Link to output folder for video 1</div>
+         <div class="content monospaced">
+            <!-- MAKE CHANGES HERE: Part 6b output folder 1 -->
+            <a href="part6/path1">placeholder path</a>
+            <!-- END CHANGES -->
+         </div>
+      </div>
+
+      <div class="listingblock">
+         <div class="title">Link to output folder for video 2</div>
+         <div class="content monospaced">
+            <!-- MAKE CHANGES HERE: Part 6b output folder 2 -->
+            <a href="part6/path2">placeholder path</a>
+            <!-- END CHANGES -->
+         </div>
+      </div>
+
+      <div class="listingblock">
+         <div class="title">Link to output folder for video 2</div>
+         <div class="content monospaced">
+            <!-- MAKE CHANGES HERE: Part 6b output folder 2 -->
+            <a href="part6/path3">placeholder path</a>
+            <!-- END CHANGES -->
+         </div>
+      </div>
+      
+      <div class="listingblock">
+         <div class="title">Source</div>
+         <div class="content monospaced">
+            <!-- MAKE CHANGES HERE: Part 6b code -->
+            <p>Note: change the file name to link your code</p>
+            <div class="codetext">
+               <object class="codeobject" type="text/html" data="part6/p6b_code.cpp"></object>
+            </div>
+            <!-- END CHANGES -->
+         </div>
+      </div>
+   </div>
+</div>
+
+<!-- ----------------------------------- END PART 6b ----------------------------------- -->
+
+<!-- ---------------------------------- START PART 7 ---------------------------------- -->	  
+<div class="sect1">
+   <h2 id="_part_7">Part 7: Compute the Mean Image</h2>
+   <div class="sectionbody">
+      <div class="paragraph">
+         <p>
+            Download and extract this <a href="http://www.cl.cam.ac.uk/Research/DTG/attarchive/pub/data/att_faces.zip">ZIP</a> file from  <a href="https://www.cl.cam.ac.uk/research/dtg/attarchive/facedatabase.html">AT&T Laboratories Cambridge</a>. The extracted folder could be part of your submission but the path should be reused across all problems that use this dataset (7, 8, 9, and 10). 
+            <br><br>
+            For this problem, use the first 8 images of each of the 40 people in the dataset.
+            Write a program to compute the average/mean face  from these 320 face images. Save the mean image and display it below. To load the ".pgm" files in OpenCV, use one of the following flags during imread: <pre class="code">cv2::IMREAD_GRAYSCALE</pre><pre class="code">cv2::IMREAD_UNCHANGED</pre>
+      </p>
+      </div>
+
+      <BR>
+         Mean Image
+      <BR>
+      <tbody>
+         <tr>
+            <td class="tableblock halign-left valign-top" >
+               <p class="tableblock"><span class="image">
+                  <!-- MAKE CHANGES HERE: Mean image -->
+                  <img src="placeholder.jpg" width="100%" height="100%">
+                  <!-- END CHANGES -->
+            </span>
+               </p>
+            </td>
+         </tr>
+      </tbody>
+      
+      <div class="listingblock">
+         <div class="title">Source</div>
+         <div class="content monospaced">
+            <!-- MAKE CHANGES HERE: Part 7 code -->
+            <p>Note: change the file name to link your code</p>
+            <div class="codetext">
+               <object class="codeobject" type="text/html" data="part7/p7_code.cpp"></object>
+            </div>
+            <!-- END CHANGES -->
+         </div>
+      </div>
+   </div>
+</div>
+
+<!-- ----------------------------------- END PART 7 ----------------------------------- -->
+
+<!-- ---------------------------------- START PART 8 ---------------------------------- -->	  
+<div class="sect1">
+   <h2 id="_part_8">Part 8: Visualize the Eigenfaces</h2>
+   <div class="sectionbody">
+      <div class="paragraph">
+         <p>
+            Use the mean image from part 7 to mean normalize all 320 faces. Then, compute the eigenfaces. In the table below, show the eigenfaces as images for the 10 largest eigenvalues. 
+            Print the corresponding eigenvalues in the box below.
+      </p>
+      </div>
+
+      <table class="tableblock frame-all grid-all" style=" width:100%; ">
+         <col style="width:20%;">
+         <col style="width:20%;">
+         <col style="width:20%;">
+         <col style="width:20%;">
+         <col style="width:20%;">
+         <tbody>
+            <tr>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 8 image 1 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 8 image 2 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 8 image 3 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 8 image 4 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 8 image 5 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+            </tr>
+            <tr>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 8 image 6 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 8 image 7 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 8 image 8 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 8 image 9 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: Part 8 image 10 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+
+      <div class="listingblock">
+         <div class="title">Eigenvalues</div>
+         <div class="content monospaced">
+            <!-- MAKE CHANGES HERE: Part 8 eigenvalues -->
+            <pre>// Insert your resulting eigenvalues here</pre>
+            <!-- END CHANGES -->
+         </div>
+      </div>
+      
+      <div class="listingblock">
+         <div class="title">Source</div>
+         <div class="content monospaced">
+            <!-- MAKE CHANGES HERE: Part 8 code -->
+            <p>Note: change the file name to link your code</p>
+            <div class="codetext">
+               <object class="codeobject" type="text/html" data="part8/p8_code.cpp"></object>
+            </div>
+            <!-- END CHANGES -->
+         </div>
+      </div>
+   </div>
+</div>
+
+<!-- ----------------------------------- END PART 8 ----------------------------------- -->
+
+<!-- ---------------------------------- START PART 9 ---------------------------------- -->	  
+<div class="sect1">
+   <h2 id="_part_9">Part 9: Image Reconstruction</h2>
+   <div class="sectionbody">
+      <div class="paragraph">
+         <p>
+            Change your code from part 8 to perform image reconstruction after the training. That is, train the eigenfaces on the same 320 images as in part 8. 
+            Then, select one image from the database. Convert it from a grayscale image into the eigenspace and then reconstruct the image. 
+            Perform this step with the eigenfaces corresponding to the K largest eigenvectors, where K ranges from 10 to 290 (inclusive) in increments of 20.
+            Display the original image and the reconstructed images below.
+      </p>
+      </div>
+
+      <BR>
+         Selected Image
+      <BR>
+      <tbody>
+         <tr>
+            <td class="tableblock halign-left valign-top" >
+               <p class="tableblock"><span class="image">
+                  <!-- MAKE CHANGES HERE: Selected image -->
+                  <img src="placeholder.jpg" width="100%" height="100%">
+                  <!-- END CHANGES -->
+            </span>
+               </p>
+            </td>
+         </tr>
+      </tbody>
+
+      <BR>
+         Reconstructed Images
+      <BR>
+         <table class="tableblock frame-all grid-all" style=" width:100%; ">
+            <col style="width:20%;">
+            <col style="width:20%;">
+            <col style="width:20%;">
+            <col style="width:20%;">
+            <col style="width:20%;">
+            <tbody>
+               <tr>
+                  <td class="tableblock halign-left valign-top" >
+                     <p class="tableblock">
+                        <span class="image">
+                     <!-- MAKE CHANGES HERE: 10 faces -->
+                     <img src="placeholder.jpg" width="100%"  >
+                     <!-- END CHANGES -->
+                        </span>
+                     </p>
+                  </td>
+                  <td class="tableblock halign-left valign-top" >
+                     <p class="tableblock">
+                        <span class="image">
+                     <!-- MAKE CHANGES HERE: 30 faces -->
+                     <img src="placeholder.jpg" width="100%"  >
+                     <!-- END CHANGES -->
+                        </span>
+                     </p>
+                  </td>
+                  <td class="tableblock halign-left valign-top" >
+                     <p class="tableblock">
+                        <span class="image">
+                     <!-- MAKE CHANGES HERE: 50 faces -->
+                     <img src="placeholder.jpg" width="100%"  >
+                     <!-- END CHANGES -->
+                        </span>
+                     </p>
+                  </td>
+                  <td class="tableblock halign-left valign-top" >
+                     <p class="tableblock">
+                        <span class="image">
+                     <!-- MAKE CHANGES HERE: 70 faces -->
+                     <img src="placeholder.jpg" width="100%"  >
+                     <!-- END CHANGES -->
+                        </span>
+                     </p>
+                  </td>
+                  <td class="tableblock halign-left valign-top" >
+                     <p class="tableblock">
+                        <span class="image">
+                     <!-- MAKE CHANGES HERE: 90 faces -->
+                     <img src="placeholder.jpg" width="100%"  >
+                     <!-- END CHANGES -->
+                        </span>
+                     </p>
+                  </td>
+               </tr>
+               <tr>
+                  <td class="tableblock halign-left valign-top" >
+                     <p class="tableblock">
+                        <span class="image">
+                     <!-- MAKE CHANGES HERE: 110 faces -->
+                     <img src="placeholder.jpg" width="100%"  >
+                     <!-- END CHANGES -->
+                        </span>
+                     </p>
+                  </td>
+                  <td class="tableblock halign-left valign-top" >
+                     <p class="tableblock">
+                        <span class="image">
+                     <!-- MAKE CHANGES HERE: 130 faces -->
+                     <img src="placeholder.jpg" width="100%"  >
+                     <!-- END CHANGES -->
+                        </span>
+                     </p>
+                  </td>
+                  <td class="tableblock halign-left valign-top" >
+                     <p class="tableblock">
+                        <span class="image">
+                     <!-- MAKE CHANGES HERE: 150 faces -->
+                     <img src="placeholder.jpg" width="100%"  >
+                     <!-- END CHANGES -->
+                        </span>
+                     </p>
+                  </td>
+                  <td class="tableblock halign-left valign-top" >
+                     <p class="tableblock">
+                        <span class="image">
+                     <!-- MAKE CHANGES HERE: 170 faces -->
+                     <img src="placeholder.jpg" width="100%"  >
+                     <!-- END CHANGES -->
+                        </span>
+                     </p>
+                  </td>
+                  <td class="tableblock halign-left valign-top" >
+                     <p class="tableblock">
+                        <span class="image">
+                     <!-- MAKE CHANGES HERE: 190 faces -->
+                     <img src="placeholder.jpg" width="100%"  >
+                     <!-- END CHANGES -->
+                        </span>
+                     </p>
+                  </td>
+               </tr><tr>
+                  <td class="tableblock halign-left valign-top" >
+                     <p class="tableblock">
+                        <span class="image">
+                     <!-- MAKE CHANGES HERE: 210 faces -->
+                     <img src="placeholder.jpg" width="100%"  >
+                     <!-- END CHANGES -->
+                        </span>
+                     </p>
+                  </td>
+                  <td class="tableblock halign-left valign-top" >
+                     <p class="tableblock">
+                        <span class="image">
+                     <!-- MAKE CHANGES HERE: 230 faces -->
+                     <img src="placeholder.jpg" width="100%"  >
+                     <!-- END CHANGES -->
+                        </span>
+                     </p>
+                  </td>
+                  <td class="tableblock halign-left valign-top" >
+                     <p class="tableblock">
+                        <span class="image">
+                     <!-- MAKE CHANGES HERE: 250 faces -->
+                     <img src="placeholder.jpg" width="100%"  >
+                     <!-- END CHANGES -->
+                        </span>
+                     </p>
+                  </td>
+                  <td class="tableblock halign-left valign-top" >
+                     <p class="tableblock">
+                        <span class="image">
+                     <!-- MAKE CHANGES HERE: 270 faces -->
+                     <img src="placeholder.jpg" width="100%"  >
+                     <!-- END CHANGES -->
+                        </span>
+                     </p>
+                  </td>
+                  <td class="tableblock halign-left valign-top" >
+                     <p class="tableblock">
+                        <span class="image">
+                     <!-- MAKE CHANGES HERE: 290 faces -->
+                     <img src="placeholder.jpg" width="100%"  >
+                     <!-- END CHANGES -->
+                        </span>
+                     </p>
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+      
+      <div class="listingblock">
+         <div class="title">Source</div>
+         <div class="content monospaced">
+            <!-- MAKE CHANGES HERE: Part 9 code -->
+            <p>Note: change the file name to link your code</p>
+            <div class="codetext">
+               <object class="codeobject" type="text/html" data="part9/p9_code.cpp"></object>
+            </div>
+            <!-- END CHANGES -->
+         </div>
+      </div>
+   </div>
+</div>
+
+<!-- ----------------------------------- END PART 9 ----------------------------------- -->
+
+<!-- ---------------------------------- START PART 10a ---------------------------------- -->	  
+<div class="sect1">
+   <h2 id="_part_10a">Part 10a: Face Recognition Program</h2>
+   <div class="sectionbody">
+      <div class="paragraph">
+         <p>
+            Build upon your code from the previous steps to write a program that performs face recognition. For training use the same 320 images form the data set as in the previous problems. For testing use the remaining 80 images (pictures 9 and 10 for each of the 40 people in the data set).             
+            Once the test image is converted to the eigenspace, use the Euclidean distance to rank how close the test image is to each training image in eigenspace. Output the 
+            labels of the k smallest distances, where k is a parameter between 1 and 5.
+      </p>
+      </div>
+     
+      
+      <div class="listingblock">
+         <div class="title">Source</div>
+         <div class="content monospaced">
+            <!-- MAKE CHANGES HERE: Part 9 code -->
+            <p>Note: change the file name to link your code</p>
+            <div class="codetext">
+               <object class="codeobject" type="text/html" data="part10/p10a_code.cpp"></object>
+            </div>
+            <!-- END CHANGES -->
+         </div>
+      </div>
+   </div>
+</div>
+
+<!-- ----------------------------------- END PART 10a ----------------------------------- -->
+
+<!-- ---------------------------------- START PART 10b ---------------------------------- -->	  
+<div class="sect1">
+   <h2 id="_part_10b">Part 10b: Face Recognition Evaluation</h2>
+   <div class="sectionbody">
+      <div class="paragraph">
+         <p>
+            Test your program from part 10a with the 9<sup>th</sup> and 10<sup>th</sup> images of the first 10 people (s1 through s10) of the AT&T database. Use k = 1.
+            Display the test images and the corresponding recognized images in the table below. Do not change the original file format. For example, if s1/9.pgm is recognized as label 1, place s1/1.pgm next to it in the table below (in the second column).
+      <br><br>      
+      In addition, calculate and print the recognition accuracy when using 150 eigenfaces and all 80 test images. Print that value on the screen and in the text box below. No need to visualize the results in this case.      
+      </p>
+      </div>
+
+      <table class="tableblock frame-all grid-all" style=" width:100%; ">
+         <col style="width:22.5%;">
+         <col style="width:22.5%;">
+         <col style="width:10%">
+         <col style="width:22.5%;">
+         <col style="width:22.5%;">
+         <tbody>
+            <thead>
+               <td class="tableblock halign-left valign-top">Image 9</td>
+               <td class="tableblock halign-left valign-top">Image 9 Result</td>
+               <td class="tableblock halign-left valign-top"></td>
+               <td class="tableblock halign-left valign-top">Image 10</td>
+               <td class="tableblock halign-left valign-top">Image 10 Result</td>
+            </thead>
+            <tr>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s1 image 9 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s1 image 9 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top"></td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s1 image 10 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s1 image 10 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+            </tr>
+            <tr>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s2 image 9 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s2 image 9 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top"></td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s2 image 10 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s2 image 10 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+            </tr>
+            <tr>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s3 image 9 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s3 image 9 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top"></td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s3 image 10 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s3 image 10 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+            </tr>
+            <tr>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s4 image 9 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s4 image 9 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top"></td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s4 image 10 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s4 image 10 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+            </tr>
+            <tr>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s5 image 9 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s5 image 9 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top"></td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s5 image 10 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s5 image 10 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+            </tr>
+            <tr>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s6 image 9 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s6 image 9 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top"></td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s6 image 10 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s6 image 10 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+            </tr>
+            <tr>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s7 image 9 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s7 image 9 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top"></td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s7 image 10 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s7 image 10 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+            </tr>
+            <tr>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s8 image 9 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s8 image 9 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top"></td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s8 image 10 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s8 image 10 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+            </tr>
+            <tr>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s9 image 9 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s9 image 9 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top"></td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s9 image 10 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s9 image 10 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+            </tr>
+            <tr>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s10 image 9 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s10 image 9 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top"></td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s10 image 10 -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+               <td class="tableblock halign-left valign-top" >
+                  <p class="tableblock">
+                     <span class="image">
+                  <!-- MAKE CHANGES HERE: s10 image 10 recognized -->
+                  <img src="placeholder.jpg" width="100%"  >
+                  <!-- END CHANGES -->
+                     </span>
+                  </p>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      
+      <div class="listingblock">
+         <div class="title">Recognition Accuracy</div>
+         <div class="content monospaced">
+            <!-- MAKE CHANGES HERE: Recognition accuracy -->
+            <pre>// Insert your resulting accuracy here</pre>
+            <!-- END CHANGES -->
+         </div>
+      </div>
+      
+      <div class="listingblock">
+         <div class="title">Source</div>
+         <div class="content monospaced">
+            <!-- MAKE CHANGES HERE: Part 10b code -->
+            <p>Note: change the file name to link your code</p>
+            <div class="codetext">
+               <object class="codeobject" type="text/html" data="part10/p10b_code.cpp"></object>
+            </div>
+            <!-- END CHANGES -->
+         </div>
+      </div>
+   </div>
+</div>
+
+<!-- ----------------------------------- END PART 10b ----------------------------------- -->
+
+<!-- ---------------------------------- START PART EC1 ---------------------------------- -->	  
+      <div class="sect1">  
+         <h2 id="_part_ec1">Extra Credit 1</h2>
+         <div class="sectionbody">
+            <div class="paragraph">
+               <p>
+                  Train a face recognition system on your favorite TV show. Take 10 to 15-second clips and use the face detector to make a database of images from these clips and label them. 
+                  There should be images of 5 characters used for your training, with enough images per character. Now test your Classifier on another video clip of the same show. 
+                  Provide the input clips, classifier file(s), and an output video from your test with bounding boxes and labels of detected characters for each frame.
+            </p>
+            </div>
+            
+            <BR>
+            Input test video.
+            <BR> 
+            <table class="tableblock frame-all grid-all" style=" width:100%; ">
+               <tbody>
+
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock"><span class="video">
+                  <video width="100%" src="partEC/ec1_test_video.mp4" type="video/mp4" controls>
+                     Your browser does not support HTML5 video.
+                  </video>
+                  </span>
+                        </p>
+                     </td>
+                     
+                  </tr>
+                  <tr>
+                     <td class="tableblock halign-left valign-top" >
+                        <p class="tableblock">
+                           <span class="video">
+                           
+                        <!-- MAKE CHANGES HERE: Part EC video 1  -->
+                        <video width="100%" src="partEC/ec1_result.mp4" type="video/mp4" controls>
+                        <!-- END CHANGES -->
+                        Your browser does not support HTML5 video.
+                     </video>
+                           </span>
+                        </p>
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+      </div>
+
+<!-- ----------------------------------- END PART EC1 ----------------------------------- -->
+
+<!-- ---------------------------------- START PART EC2 ---------------------------------- -->	  
+<div class="sect1">
+   <h2 id="_part_ec2">Extra Credit 2</h2>
+   <div class="sectionbody">
+      <div class="paragraph">
+         <p>
+            Train a Cascade Classifier to detect either traffic lights, stop signs, or some other object that you pick. Collect your own training and text images (or use online databases, google maps, and other public domain websites). Provide the xml file in the outputs folder. Also, provide your source code and sample output images that show the results of the classifier. 
+      </p>
+      </div>
+   </div>
+</div>
+
+<!-- ----------------------------------- END PART EC2 ----------------------------------- -->
+
+   </div>
+         
+      <div id="footer">
+         <div id="footer-text">
+            Last updated 2026-04-07
+         </div>
+      </div>
+   </body>
+</html>
